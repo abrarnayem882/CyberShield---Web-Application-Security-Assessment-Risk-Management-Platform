@@ -181,8 +181,12 @@ export const App: React.FC = () => {
           <div>
             <strong style={{ color: '#cbd5e1' }}>CyberShield Platform</strong> • SE331 SecOps Lab Section 41_B2 (Fall 2026)
           </div>
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <span style={{ color: 'var(--cyan-primary)', fontWeight: 600 }}>MD. Abu Nayem (232-35-332) — Security Architecture & Backend Lead</span>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <span>MD. Abu Nayem (232-35-332)</span>
+            <span>•</span>
+            <span>Ovijeet Saha (232-35-457)</span>
+            <span>•</span>
+            <span>Atiya Khanm Lucky (232-35-422)</span>
           </div>
         </div>
       </footer>

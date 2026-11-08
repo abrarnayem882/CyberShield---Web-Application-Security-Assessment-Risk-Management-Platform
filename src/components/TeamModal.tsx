@@ -21,7 +21,7 @@ export const TeamModal: React.FC<TeamModalProps> = ({ onClose }) => {
             <div>
               <h2 style={{ fontSize: '1.35rem', fontWeight: 800 }}>CyberShield Platform</h2>
               <div style={{ fontSize: '0.8rem', color: 'var(--cyan-primary)', fontWeight: 600 }}>
-                Course: SE331 | Lab Section: 41_B2 | Semester: Fall 2026
+                Course: SE331 | Lab Section: 41_B2 | Semester: Fall 2026 | Group 02
               </div>
             </div>
           </div>
@@ -33,35 +33,78 @@ export const TeamModal: React.FC<TeamModalProps> = ({ onClose }) => {
         {/* Project Overview */}
         <div style={{ marginBottom: '1.75rem', background: 'rgba(9, 13, 22, 0.7)', padding: '1.25rem', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
-            Module 1 Scope: Website Submission, Basic Security Report & User Management
+            Full Module 1 Scope: Website Submission, Basic Security Report & User Management
           </div>
           <p style={{ fontSize: '0.825rem', color: '#cbd5e1', lineHeight: 1.6 }}>
             CyberShield provides organizations with safe automated security audits covering HTTPS transport encryption, SSL/TLS certificate chains, 6 core security headers (HSTS, CSP, XFO, XCTO, RP, PP), cookie security flags, and server banner masking. Built with React, TypeScript, and Django REST Framework.
           </p>
         </div>
 
-        {/* Student & Engineering Role */}
+        {/* Group Members Grid */}
         <div style={{ marginBottom: '1.75rem' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
-            Module 1 Architecture & Engineering Lead
+            Group 02 Members & Module 1 Engineering Roles
           </div>
 
-          <div style={{ padding: '1.25rem', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '10px', border: '1px solid rgba(6, 182, 212, 0.35)', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-            <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'rgba(6, 182, 212, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Server size={22} color="var(--cyan-primary)" />
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ fontWeight: 800, color: '#f8fafc', fontSize: '1.05rem' }}>MD. ABU NAYEM</div>
-                <span className="font-mono badge badge-info" style={{ fontSize: '0.75rem' }}>ID: 232-35-332</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            
+            {/* Member 1: MD. ABU NAYEM */}
+            <div style={{ padding: '1rem', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '10px', border: '1px solid rgba(6, 182, 212, 0.25)', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(6, 182, 212, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Server size={18} color="var(--cyan-primary)" />
               </div>
-              <div style={{ fontSize: '0.825rem', color: 'var(--cyan-primary)', fontWeight: 600, marginTop: '0.2rem' }}>
-                Security Architecture & Backend Lead — Module 1
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontWeight: 700, color: '#f8fafc', fontSize: '0.95rem' }}>MD. ABU NAYEM</div>
+                  <span className="font-mono badge badge-info" style={{ fontSize: '0.7rem' }}>ID: 232-35-332</span>
+                </div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--cyan-primary)', fontWeight: 600, marginTop: '0.15rem' }}>
+                  Security Architecture & Backend Lead
+                </div>
+                <p style={{ fontSize: '0.775rem', color: '#94a3b8', marginTop: '0.35rem', lineHeight: 1.4 }}>
+                  Engineered Django REST Framework API, JWT (HMAC-SHA256) auth, RFC 3986 URL validation, SSRF private IP filters, concurrent safe security checks engine, and remediation snippet generators.
+                </p>
               </div>
-              <p style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.5rem', lineHeight: 1.5 }}>
-                Engineered the Django REST Framework API, HMAC-SHA256 JWT authentication, RFC 3986 URL validation, SSRF private IP filters, concurrent safe security checks engine, scoring formulas, activity diagrams (Mermaid & PlantUML), and tailored remediation configuration generators for Nginx, Apache, and Django.
-              </p>
             </div>
+
+            {/* Member 2: OVIJEET SAHA */}
+            <div style={{ padding: '1rem', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '10px', border: '1px solid rgba(59, 130, 246, 0.25)', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(59, 130, 246, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Layout size={18} color="#60a5fa" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontWeight: 700, color: '#f8fafc', fontSize: '0.95rem' }}>OVIJEET SAHA</div>
+                  <span className="font-mono badge badge-info" style={{ fontSize: '0.7rem' }}>ID: 232-35-457</span>
+                </div>
+                <div style={{ fontSize: '0.8rem', color: '#60a5fa', fontWeight: 600, marginTop: '0.15rem' }}>
+                  Frontend Engineering & UI Lead
+                </div>
+                <p style={{ fontSize: '0.775rem', color: '#94a3b8', marginTop: '0.35rem', lineHeight: 1.4 }}>
+                  Built responsive React UI, circular score gauge, collapsible finding cards categorized by severity with copyable remediation tabs (Nginx, Apache, Django), and persona switch bar.
+                </p>
+              </div>
+            </div>
+
+            {/* Member 3: ATIYA KHANM LUCKY */}
+            <div style={{ padding: '1rem', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '10px', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Database size={18} color="#34d399" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontWeight: 700, color: '#f8fafc', fontSize: '0.95rem' }}>ATIYA KHANM LUCKY</div>
+                  <span className="font-mono badge badge-info" style={{ fontSize: '0.7rem' }}>ID: 232-35-422</span>
+                </div>
+                <div style={{ fontSize: '0.8rem', color: '#34d399', fontWeight: 600, marginTop: '0.15rem' }}>
+                  Database, QA & Reporting Lead
+                </div>
+                <p style={{ fontSize: '0.775rem', color: '#94a3b8', marginTop: '0.35rem', lineHeight: 1.4 }}>
+                  Designed 3NF normalized schema, CHECK/UNIQUE database constraints, automated database migrations, B-tree indexes, input validation layer, and automated test fixtures.
+                </p>
+              </div>
+            </div>
+
           </div>
         </div>
 

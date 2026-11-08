@@ -43,7 +43,7 @@ export const TeamModal: React.FC<TeamModalProps> = ({ onClose }) => {
         {/* Group Members Grid */}
         <div style={{ marginBottom: '1.75rem' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
-            Group 02 Members & Module 1 Engineering Roles
+            Group 02 Members & User-End Functional Feature Ownership
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
@@ -59,10 +59,10 @@ export const TeamModal: React.FC<TeamModalProps> = ({ onClose }) => {
                   <span className="font-mono badge badge-info" style={{ fontSize: '0.7rem' }}>ID: 232-35-332</span>
                 </div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--cyan-primary)', fontWeight: 600, marginTop: '0.15rem' }}>
-                  Security Architecture & Backend Lead
+                  Security Architecture & Access Control Lead (FR-1.1 – FR-1.6)
                 </div>
                 <p style={{ fontSize: '0.775rem', color: '#94a3b8', marginTop: '0.35rem', lineHeight: 1.4 }}>
-                  Engineered Django REST Framework API, JWT (HMAC-SHA256) auth, RFC 3986 URL validation, SSRF private IP filters, concurrent safe security checks engine, and remediation snippet generators.
+                  User Login, Role-Based Access Control policies, Target Website URL Submission, SSRF private IP protection, TLS/SSL certificate chain inspections, and HTTPS redirection audits.
                 </p>
               </div>
             </div>
@@ -78,10 +78,10 @@ export const TeamModal: React.FC<TeamModalProps> = ({ onClose }) => {
                   <span className="font-mono badge badge-info" style={{ fontSize: '0.7rem' }}>ID: 232-35-457</span>
                 </div>
                 <div style={{ fontSize: '0.8rem', color: '#60a5fa', fontWeight: 600, marginTop: '0.15rem' }}>
-                  Frontend Engineering & UI Lead
+                  Web Configuration Auditing & Remediation Lead (FR-1.7 – FR-1.12)
                 </div>
                 <p style={{ fontSize: '0.775rem', color: '#94a3b8', marginTop: '0.35rem', lineHeight: 1.4 }}>
-                  Built responsive React UI, circular score gauge, collapsible finding cards categorized by severity with copyable remediation tabs (Nginx, Apache, Django), and persona switch bar.
+                  Core security headers analysis (HSTS, CSP, XFO, XCTO, RP, PP), cookie security flags verification, information exposure & banner leak detection, scoring formulas, severity findings display, and tailored Nginx/Apache/Django remediation snippets.
                 </p>
               </div>
             </div>
@@ -97,10 +97,10 @@ export const TeamModal: React.FC<TeamModalProps> = ({ onClose }) => {
                   <span className="font-mono badge badge-info" style={{ fontSize: '0.7rem' }}>ID: 232-35-422</span>
                 </div>
                 <div style={{ fontSize: '0.8rem', color: '#34d399', fontWeight: 600, marginTop: '0.15rem' }}>
-                  Database, QA & Reporting Lead
+                  Engagement Conversion, History & Audit Operations Lead (FR-1.13 – FR-1.18)
                 </div>
                 <p style={{ fontSize: '0.775rem', color: '#94a3b8', marginTop: '0.35rem', lineHeight: 1.4 }}>
-                  Designed 3NF normalized schema, CHECK/UNIQUE database constraints, automated database migrations, B-tree indexes, input validation layer, and automated test fixtures.
+                  Full security assessment request conversion workflow, scan history tracking with score metrics, target re-scanning operations, user profile & session inspection, security audit trail review, and live stakeholder role switching.
                 </p>
               </div>
             </div>

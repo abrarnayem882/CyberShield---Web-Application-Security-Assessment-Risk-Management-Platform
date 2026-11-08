@@ -13,12 +13,24 @@ export type UserRole =
 
 export interface UserProfile {
   id: string;
+  username?: string;
   name: string;
   email: string;
   role: UserRole;
   organization: string;
   studentId?: string;
   token?: string;
+}
+
+export interface RolePermissions {
+  canSubmitScan: boolean;
+  canViewFullReport: boolean;
+  canRequestAssessment: boolean;
+  canViewAuditLogs: boolean;
+  canManageUsers: boolean;
+  canReviewAssessmentRequests: boolean;
+  canVerifyScanAsAssessor: boolean;
+  canAccessDeveloperFixMode: boolean;
 }
 
 export type SeverityLevel = 'Critical' | 'High' | 'Medium' | 'Low' | 'Informational';

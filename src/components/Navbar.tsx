@@ -5,8 +5,9 @@ import {
   History, 
   UserCheck, 
   Info, 
-  ChevronDown,
-  Layers
+  ChevronDown, 
+  Layers,
+  KeyRound
 } from 'lucide-react';
 import { UserRole, UserProfile } from '../types';
 import { SYSTEM_USERS } from '../data/mockData';
@@ -17,6 +18,7 @@ interface NavbarProps {
   currentUser: UserProfile;
   setCurrentUser: (user: UserProfile) => void;
   onOpenTeamInfo: () => void;
+  onOpenLoginModal: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -24,7 +26,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   setActiveTab,
   currentUser,
   setCurrentUser,
-  onOpenTeamInfo
+  onOpenTeamInfo,
+  onOpenLoginModal
 }) => {
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
 
@@ -138,7 +141,24 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>Group 02 | SE331</span>
           </button>
 
-          {/* Interactive Role Switcher (FR-1.13) */}
+          {/* Role Login / Switcher Button (FR-1.1 & FR-1.2) */}
+          <button
+            onClick={onOpenLoginModal}
+            className="btn btn-secondary btn-sm"
+            style={{ 
+              fontSize: '0.75rem', 
+              gap: '0.45rem', 
+              background: 'rgba(6, 182, 212, 0.1)', 
+              borderColor: 'rgba(6, 182, 212, 0.35)',
+              color: 'var(--cyan-primary)'
+            }}
+            title="Open Role-Based Login & Switch Persona"
+          >
+            <UserCheck size={14} color="var(--cyan-primary)" />
+            <span>Switch Role</span>
+          </button>
+
+          {/* Interactive Role Badge Display */}
           <div style={{ position: 'relative' }}>
             <button
               onClick={() => setShowRoleDropdown(!showRoleDropdown)}
@@ -155,7 +175,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                 fontSize: '0.825rem'
               }}
             >
-              <UserCheck size={16} color="#06b6d4" />
+              <div style={{ 
+                width: '8px', 
+                height: '8px', 
+                borderRadius: '50%', 
+                background: currentUser.role === 'admin' ? '#06b6d4' : (currentUser.role === 'customer' ? '#10b981' : (currentUser.role === 'developer' ? '#f59e0b' : '#8b5cf6')) 
+              }} />
               <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
                 <div style={{ fontWeight: 600, fontSize: '0.8rem' }}>{currentUser.name}</div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>
@@ -172,7 +197,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   position: 'absolute',
                   right: 0,
                   top: '115%',
-                  width: '260px',
+                  width: '270px',
                   background: 'var(--bg-secondary)',
                   border: '1px solid var(--border-subtle)',
                   borderRadius: '12px',
@@ -182,9 +207,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                   backdropFilter: 'blur(20px)'
                 }}
               >
-                <div style={{ padding: '0.5rem', fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Switch Stakeholder Persona (RBAC)
+                <div style={{ padding: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Active Persona (RBAC)
+                  </span>
+                  <span className={`badge ${getRoleBadgeClass(currentUser.role)}`} style={{ fontSize: '0.65rem' }}>
+                    {currentUser.role}
+                  </span>
                 </div>
+
+                <div style={{ borderTop: '1px solid var(--border-subtle)', margin: '0.25rem 0 0.5rem 0' }} />
+
                 {SYSTEM_USERS.map((user) => (
                   <div
                     key={user.id}
@@ -212,6 +245,20 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{user.organization}</span>
                   </div>
                 ))}
+
+                <div style={{ borderTop: '1px solid var(--border-subtle)', margin: '0.5rem 0 0.25rem 0', paddingTop: '0.25rem' }}>
+                  <button
+                    onClick={() => {
+                      setShowRoleDropdown(false);
+                      onOpenLoginModal();
+                    }}
+                    className="btn btn-primary btn-sm"
+                    style={{ width: '100%', justifyContent: 'center', fontSize: '0.75rem' }}
+                  >
+                    <KeyRound size={12} />
+                    <span>Open Full RBAC Login Portal</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>

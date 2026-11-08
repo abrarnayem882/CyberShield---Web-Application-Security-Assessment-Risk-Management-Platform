@@ -7,11 +7,17 @@ import {
   CheckCircle2, 
   AlertTriangle, 
   Clock, 
-  Search,
-  Activity,
-  Server
+  Search, 
+  Activity, 
+  Server, 
+  Lock, 
+  Inbox, 
+  UserCheck, 
+  Check,
+  Globe
 } from 'lucide-react';
-import { BasicScanResult, AuditLog, UserProfile } from '../types';
+import { BasicScanResult, AuditLog, UserProfile, AssessmentRequest } from '../types';
+import { INITIAL_REQUESTS } from '../data/mockData';
 
 interface ScanHistoryProps {
   currentUser: UserProfile;
@@ -19,6 +25,7 @@ interface ScanHistoryProps {
   auditLogs: AuditLog[];
   onSelectScan: (scan: BasicScanResult) => void;
   onReScan: (url: string) => void;
+  onOpenLoginModal?: () => void;
 }
 
 export const ScanHistory: React.FC<ScanHistoryProps> = ({
@@ -26,10 +33,19 @@ export const ScanHistory: React.FC<ScanHistoryProps> = ({
   scanHistory,
   auditLogs,
   onSelectScan,
-  onReScan
+  onReScan,
+  onOpenLoginModal
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState<'scans' | 'audit'>('scans');
+  const [activeTab, setActiveTab] = useState<'scans' | 'audit' | 'inquiries'>('scans');
+  const [assessmentRequests, setAssessmentRequests] = useState<AssessmentRequest[]>(INITIAL_REQUESTS);
+
+  const canViewAuditLogs = currentUser.role === 'admin' || currentUser.role === 'manager' || currentUser.role === 'assessor';
+  const canViewInquiries = currentUser.role === 'admin' || currentUser.role === 'manager' || currentUser.role === 'assessor';
+
+  const handleUpdateStatus = (reqId: string, newStatus: AssessmentRequest['status']) => {
+    setAssessmentRequests(prev => prev.map(req => req.id === reqId ? { ...req, status: newStatus } : req));
+  };
 
   const filteredScans = scanHistory.filter(s => 
     s.url.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -41,6 +57,12 @@ export const ScanHistory: React.FC<ScanHistoryProps> = ({
     l.target.toLowerCase().includes(searchTerm.toLowerCase()) ||
     l.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
     l.user.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredInquiries = assessmentRequests.filter(r =>
+    r.organization.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.targetUrl.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.status.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getScoreColor = (score: number) => {
@@ -71,10 +93,10 @@ export const ScanHistory: React.FC<ScanHistoryProps> = ({
             <h1 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.02em' }}>
               Scan History & Audit Repository
             </h1>
-            <span className="badge badge-info">FR-1.7 & FR-1.12</span>
+            <span className="badge badge-info">FR-1.14 & FR-1.17</span>
           </div>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
-            Persistent storage of previous automated scans, security scores, and tamper-evident audit logs.
+            Persistent storage of previous scans, scores, assessment requests, and role-governed audit logs.
           </p>
         </div>
 
@@ -93,7 +115,7 @@ export const ScanHistory: React.FC<ScanHistoryProps> = ({
       </div>
 
       {/* Sub Tabs */}
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
         <button
           onClick={() => setActiveTab('scans')}
           className="btn"
@@ -120,9 +142,38 @@ export const ScanHistory: React.FC<ScanHistoryProps> = ({
             fontWeight: 600
           }}
         >
-          <Activity size={16} color={activeTab === 'audit' ? 'var(--cyan-primary)' : 'var(--text-muted)'} />
+          {canViewAuditLogs ? (
+            <Activity size={16} color={activeTab === 'audit' ? 'var(--cyan-primary)' : 'var(--text-muted)'} />
+          ) : (
+            <Lock size={16} color="#94a3b8" />
+          )}
           <span>Security Audit Trail ({filteredLogs.length})</span>
+          {!canViewAuditLogs && (
+            <span className="badge badge-secondary" style={{ fontSize: '0.625rem', marginLeft: '0.25rem' }}>
+              RESTRICTED
+            </span>
+          )}
         </button>
+
+        {canViewInquiries && (
+          <button
+            onClick={() => setActiveTab('inquiries')}
+            className="btn"
+            style={{
+              background: activeTab === 'inquiries' ? 'rgba(6, 182, 212, 0.2)' : 'rgba(30, 41, 59, 0.5)',
+              border: activeTab === 'inquiries' ? '1px solid var(--cyan-primary)' : '1px solid var(--border-subtle)',
+              color: activeTab === 'inquiries' ? '#ffffff' : 'var(--text-muted)',
+              fontSize: '0.825rem',
+              fontWeight: 600
+            }}
+          >
+            <Inbox size={16} color={activeTab === 'inquiries' ? 'var(--cyan-primary)' : 'var(--text-muted)'} />
+            <span>Assessment Inquiries ({filteredInquiries.length})</span>
+            <span className="badge badge-info" style={{ fontSize: '0.625rem', marginLeft: '0.25rem' }}>
+              MANAGER/ASSESSOR
+            </span>
+          </button>
+        )}
       </div>
 
       {/* Scans Table View */}
@@ -151,17 +202,20 @@ export const ScanHistory: React.FC<ScanHistoryProps> = ({
                 filteredScans.map((scan) => (
                   <tr key={scan.id}>
                     <td>
-                      <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={{ fontWeight: 600, color: '#f8fafc', fontSize: '0.875rem' }}>{scan.hostname}</span>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', wordBreak: 'break-all' }}>{scan.url}</span>
+                      <div>
+                        <div style={{ fontWeight: 600, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                          <Globe size={14} color="var(--cyan-primary)" />
+                          <span>{scan.hostname}</span>
+                        </div>
+                        <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>{scan.url}</div>
                       </div>
                     </td>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span style={{ fontWeight: 800, fontSize: '1.1rem', color: getScoreColor(scan.score) }}>
+                        <span style={{ fontSize: '1.15rem', fontWeight: 800, color: getScoreColor(scan.score) }}>
                           {scan.score}
                         </span>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>/ 100</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>/ 100</span>
                       </div>
                     </td>
                     <td>
@@ -171,31 +225,36 @@ export const ScanHistory: React.FC<ScanHistoryProps> = ({
                     </td>
                     <td>
                       <div style={{ fontSize: '0.75rem' }}>
-                        <div style={{ color: 'var(--text-main)', fontWeight: 500 }}>{scan.sslInfo?.tls_version || 'TLS 1.2'}</div>
-                        <div style={{ color: 'var(--text-dim)', fontSize: '0.7rem' }}>{scan.sslInfo?.issuer || 'Verified CA'}</div>
+                        <div style={{ color: '#cbd5e1' }}>{scan.sslInfo?.tls_version || 'TLS 1.3'}</div>
+                        <div style={{ color: 'var(--text-dim)', fontSize: '0.7rem' }}>{scan.sslInfo?.cipher || 'AES-256-GCM'}</div>
                       </div>
                     </td>
                     <td>
-                      <div style={{ display: 'flex', gap: '0.35rem', fontSize: '0.72rem' }}>
+                      <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
                         {scan.severityCounts.Critical > 0 && (
-                          <span style={{ color: '#ef4444', fontWeight: 600 }}>{scan.severityCounts.Critical} Crit</span>
+                          <span className="badge badge-critical" style={{ fontSize: '0.65rem' }}>
+                            {scan.severityCounts.Critical} Critical
+                          </span>
                         )}
                         {scan.severityCounts.High > 0 && (
-                          <span style={{ color: '#f97316', fontWeight: 600 }}>{scan.severityCounts.High} High</span>
+                          <span className="badge badge-high" style={{ fontSize: '0.65rem' }}>
+                            {scan.severityCounts.High} High
+                          </span>
                         )}
                         {scan.severityCounts.Medium > 0 && (
-                          <span style={{ color: '#f59e0b', fontWeight: 600 }}>{scan.severityCounts.Medium} Med</span>
+                          <span className="badge badge-medium" style={{ fontSize: '0.65rem' }}>
+                            {scan.severityCounts.Medium} Med
+                          </span>
                         )}
                         {scan.severityCounts.Critical === 0 && scan.severityCounts.High === 0 && (
-                          <span style={{ color: '#10b981', fontWeight: 600 }}>Protected</span>
+                          <span className="badge badge-success" style={{ fontSize: '0.65rem' }}>
+                            Passing Checks
+                          </span>
                         )}
                       </div>
                     </td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        <Clock size={13} />
-                        <span>{new Date(scan.scanTimestamp).toLocaleDateString()} {new Date(scan.scanTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                      </div>
+                    <td style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                      {scan.scanTimestamp ? new Date(scan.scanTimestamp).toLocaleString() : 'Recent'}
                     </td>
                     <td style={{ textAlign: 'right' }}>
                       <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
@@ -229,49 +288,191 @@ export const ScanHistory: React.FC<ScanHistoryProps> = ({
 
       {/* Audit Log View */}
       {activeTab === 'audit' && (
+        <>
+          {canViewAuditLogs ? (
+            <div className="glass-panel" style={{ padding: '0.5rem', overflowX: 'auto' }}>
+              <div style={{ padding: '0.85rem 1rem', background: 'rgba(15, 23, 42, 0.6)', borderBottom: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.785rem', color: 'var(--text-dim)', fontWeight: 600 }}>
+                  TAMPER-EVIDENT SECURE AUDIT LOGS (FR-1.17)
+                </span>
+                <span className="badge badge-info" style={{ fontSize: '0.68rem' }}>
+                  AUTHORIZED: {currentUser.role.toUpperCase()}
+                </span>
+              </div>
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Timestamp (UTC)</th>
+                    <th>User / Identity</th>
+                    <th>Role (RBAC)</th>
+                    <th>Action</th>
+                    <th>Target Asset</th>
+                    <th>Audit Details</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredLogs.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+                        No audit records found matching your query.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredLogs.map((log) => (
+                      <tr key={log.id}>
+                        <td style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--cyan-primary)' }}>
+                          {log.timestamp}
+                        </td>
+                        <td>
+                          <span style={{ fontWeight: 600, color: '#f8fafc', fontSize: '0.825rem' }}>{log.user}</span>
+                        </td>
+                        <td>
+                          <span className="badge badge-info" style={{ fontSize: '0.68rem', textTransform: 'capitalize' }}>
+                            {log.role}
+                          </span>
+                        </td>
+                        <td>
+                          <span className="font-mono" style={{ fontSize: '0.75rem', color: '#93c5fd' }}>
+                            {log.action}
+                          </span>
+                        </td>
+                        <td>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{log.target}</span>
+                        </td>
+                        <td style={{ fontSize: '0.785rem', color: '#cbd5e1' }}>
+                          {log.details}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="glass-panel" style={{ padding: '3.5rem 2rem', textAlign: 'center', maxWidth: '640px', margin: '2rem auto' }}>
+              <div style={{ 
+                width: '60px', 
+                height: '60px', 
+                borderRadius: '50%', 
+                background: 'rgba(239, 68, 68, 0.12)', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                margin: '0 auto 1.25rem auto'
+              }}>
+                <Lock size={30} color="#ef4444" />
+              </div>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>
+                Access Restricted: Security Clearance Required
+              </h2>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+                Under FR-1.2 Role-Based Access Control policy, tamper-evident security audit trails are restricted to 
+                <strong> Security Assessor</strong>, <strong>Security Manager</strong>, and <strong>Administrator</strong> roles. 
+                Your active role is <span className="badge badge-secondary" style={{ textTransform: 'capitalize' }}>{currentUser.role}</span>.
+              </p>
+              {onOpenLoginModal && (
+                <button 
+                  onClick={onOpenLoginModal}
+                  className="btn btn-primary"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+                >
+                  <UserCheck size={16} />
+                  <span>Switch to an Authorized Role (Assessor / Admin)</span>
+                </button>
+              )}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Assessment Inquiries View (Manager & Assessor & Admin) */}
+      {activeTab === 'inquiries' && canViewInquiries && (
         <div className="glass-panel" style={{ padding: '0.5rem', overflowX: 'auto' }}>
+          <div style={{ padding: '0.85rem 1rem', background: 'rgba(15, 23, 42, 0.6)', borderBottom: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.785rem', color: 'var(--text-dim)', fontWeight: 600 }}>
+              INBOUND CUSTOMER ASSESSMENT PIPELINE (FR-1.13)
+            </span>
+            <span className="badge badge-info" style={{ fontSize: '0.68rem' }}>
+              MANAGEMENT PIPELINE
+            </span>
+          </div>
+
           <table className="data-table">
             <thead>
               <tr>
-                <th>Timestamp (UTC)</th>
-                <th>User / Identity</th>
-                <th>Role (RBAC)</th>
-                <th>Action</th>
+                <th>Organization & Contact</th>
                 <th>Target Asset</th>
-                <th>Audit Details</th>
+                <th>Compliance Goal</th>
+                <th>Priority</th>
+                <th>Current Status</th>
+                <th style={{ textAlign: 'right' }}>Status Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredLogs.length === 0 ? (
+              {filteredInquiries.length === 0 ? (
                 <tr>
                   <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
-                    No audit records found matching your query.
+                    No assessment requests currently in queue.
                   </td>
                 </tr>
               ) : (
-                filteredLogs.map((log) => (
-                  <tr key={log.id}>
-                    <td style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--cyan-primary)' }}>
-                      {log.timestamp}
+                filteredInquiries.map((req) => (
+                  <tr key={req.id}>
+                    <td>
+                      <div>
+                        <div style={{ fontWeight: 600, color: '#f8fafc' }}>{req.organization}</div>
+                        <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>
+                          {req.contactName} ({req.contactEmail})
+                        </div>
+                      </div>
                     </td>
                     <td>
-                      <span style={{ fontWeight: 600, color: '#f8fafc', fontSize: '0.825rem' }}>{log.user}</span>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--cyan-primary)' }}>{req.targetUrl}</span>
                     </td>
                     <td>
-                      <span className="badge badge-info" style={{ fontSize: '0.68rem', textTransform: 'capitalize' }}>
-                        {log.role}
+                      <span style={{ fontSize: '0.75rem', color: '#cbd5e1' }}>{req.complianceTarget}</span>
+                    </td>
+                    <td>
+                      <span className={`badge ${req.priority === 'Urgent' ? 'badge-critical' : 'badge-info'}`} style={{ fontSize: '0.65rem' }}>
+                        {req.priority}
                       </span>
                     </td>
                     <td>
-                      <span className="font-mono" style={{ fontSize: '0.75rem', color: '#93c5fd' }}>
-                        {log.action}
+                      <span className="badge badge-secondary" style={{ fontSize: '0.7rem' }}>
+                        {req.status}
                       </span>
                     </td>
-                    <td>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{log.target}</span>
-                    </td>
-                    <td style={{ fontSize: '0.785rem', color: '#cbd5e1' }}>
-                      {log.details}
+                    <td style={{ textAlign: 'right' }}>
+                      <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'flex-end' }}>
+                        {req.status === 'Pending Review' && (
+                          <button
+                            onClick={() => handleUpdateStatus(req.id, 'Approved & Scheduled')}
+                            className="btn btn-primary btn-sm"
+                            style={{ fontSize: '0.7rem', padding: '0.3rem 0.6rem' }}
+                          >
+                            <Check size={12} />
+                            <span>Approve</span>
+                          </button>
+                        )}
+                        {req.status === 'Approved & Scheduled' && (
+                          <button
+                            onClick={() => handleUpdateStatus(req.id, 'In Progress')}
+                            className="btn btn-secondary btn-sm"
+                            style={{ fontSize: '0.7rem', padding: '0.3rem 0.6rem' }}
+                          >
+                            <span>Start Audit</span>
+                          </button>
+                        )}
+                        {req.status === 'In Progress' && (
+                          <button
+                            onClick={() => handleUpdateStatus(req.id, 'Completed')}
+                            className="btn btn-secondary btn-sm"
+                            style={{ fontSize: '0.7rem', padding: '0.3rem 0.6rem', color: '#10b981' }}
+                          >
+                            <span>Mark Complete</span>
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -284,4 +485,5 @@ export const ScanHistory: React.FC<ScanHistoryProps> = ({
     </div>
   );
 };
+
 

@@ -7,7 +7,8 @@ from .views import (
     AssessmentRequestView,
     AuthLoginView,
     CurrentUserView,
-    AuditLogListView
+    AuditLogListView,
+    UserListView
 )
 
 urlpatterns = [
@@ -26,5 +27,7 @@ urlpatterns = [
     path('auth/me/', CurrentUserView.as_view(), name='auth_me_slash'),
     path('audit-logs', AuditLogListView.as_view(), name='audit_logs'),
     path('audit-logs/', AuditLogListView.as_view(), name='audit_logs_slash'),
+    path('users', UserListView.as_view(), name='users'),
+    path('users/', UserListView.as_view(), name='users_slash'),
 ]
 

@@ -164,7 +164,7 @@ class ScanDetailView(APIView):
 
 class AssessmentRequestView(APIView):
     """
-    FR-1.11: Request Full Security Assessment CTA conversion.
+    FR-1.13: Request Full Security Assessment CTA conversion.
     """
     def post(self, request):
         serializer = AssessmentRequestSerializer(data=request.data)
@@ -195,39 +195,111 @@ class AssessmentRequestView(APIView):
         reqs = AssessmentRequest.objects.all()[:20]
         return Response(AssessmentRequestSerializer(reqs, many=True).data)
 
+    def patch(self, request):
+        req_id = request.data.get('id')
+        new_status = request.data.get('status')
+        if not req_id or not new_status:
+            return Response({'error': 'id and status required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            req_obj = AssessmentRequest.objects.get(id=req_id)
+            req_obj.status = new_status
+            req_obj.save()
+            
+            # Log status change audit
+            ScanAuditLog.objects.create(
+                user_name=request.data.get('user_name', 'Security Manager'),
+                role=request.data.get('role', 'manager'),
+                action='ASSESSMENT_STATUS_UPDATED',
+                target_url=req_obj.target_url,
+                ip_address=request.META.get('REMOTE_ADDR', '127.0.0.1'),
+                details=f"Assessment request status for {req_obj.organization} updated to '{new_status}'."
+            )
+            return Response(AssessmentRequestSerializer(req_obj).data)
+        except AssessmentRequest.DoesNotExist:
+            return Response({'error': 'Assessment request not found'}, status=status.HTTP_404_NOT_FOUND)
+
 class AuthLoginView(APIView):
     """
-    FR-1.1: Authenticate users via bcrypt/PBKDF2; issue HMAC-SHA256 signed JWT with role claims and 60-min expiry.
+    FR-1.1: Authenticate users via role or credentials; issue HMAC-SHA256 signed JWT with role claims and 60-min expiry.
     """
     def post(self, request):
         username = request.data.get('username')
+        role_req = request.data.get('role')
         password = request.data.get('password')
 
-        if not username:
-            return Response({'error': 'Username or email required'}, status=status.HTTP_400_BAD_REQUEST)
+        user = None
+        if role_req:
+            user = UserProfile.objects.filter(role=role_req).first()
+        
+        if not user and username:
+            user = UserProfile.objects.filter(username=username).first() or \
+                   UserProfile.objects.filter(email=username).first() or \
+                   UserProfile.objects.filter(role=username).first()
+
+        if not user:
+            # Fallback: create demo user
+            target_name = username or role_req or 'guest'
+            org, _ = Organization.objects.get_or_create(name='GlobalMart Retail Ltd', domain='globalmart-retail.com')
+            user = UserProfile.objects.create(
+                username=target_name,
+                email=f"{target_name}@example.com",
+                name=target_name.replace('_', ' ').title(),
+                password_hash='pbkdf2_sha256$test$hashed',
+                role=role_req if role_req in ['customer', 'assessor', 'developer', 'manager', 'admin'] else 'customer',
+                organization=org
+            )
+
+        token = generate_jwt_token(user)
+        
+        # Log auth event
+        ScanAuditLog.objects.create(
+            user_name=user.name,
+            role=user.role,
+            action='USER_LOGIN_SUCCESS',
+            target_url='http://localhost:8000/api/auth/login',
+            ip_address=request.META.get('REMOTE_ADDR', '127.0.0.1'),
+            details=f"User {user.name} ({user.role}) authenticated successfully."
+        )
+
+        return Response({
+            'token': token,
+            'user': UserProfileSerializer(user).data,
+            'expires_in_minutes': 60
+        })
+
+class UserListView(APIView):
+    """
+    FR-1.2: Admin RBAC User Management.
+    """
+    def get(self, request):
+        users = UserProfile.objects.all().order_by('created_at')
+        return Response(UserProfileSerializer(users, many=True).data)
+
+    def post(self, request):
+        # Update user role (Admin feature)
+        user_id = request.data.get('user_id')
+        new_role = request.data.get('role')
+        if not user_id or not new_role:
+            return Response({'error': 'user_id and role required'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            user = UserProfile.objects.filter(username=username).first() or UserProfile.objects.filter(email=username).first()
-            if not user:
-                # Create demo user on the fly if needed
-                org, _ = Organization.objects.get_or_create(name='GlobalMart Retail Ltd', domain='globalmart-retail.com')
-                user = UserProfile.objects.create(
-                    username=username,
-                    email=f"{username}@example.com",
-                    name=username.replace('_', ' ').title(),
-                    password_hash='pbkdf2_sha256$test$hashed',
-                    role='customer',
-                    organization=org
-                )
+            user = UserProfile.objects.get(id=user_id)
+            old_role = user.role
+            user.role = new_role
+            user.save()
 
-            token = generate_jwt_token(user)
-            return Response({
-                'token': token,
-                'user': UserProfileSerializer(user).data,
-                'expires_in_minutes': 60
-            })
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            ScanAuditLog.objects.create(
+                user_name=request.data.get('admin_name', 'Security Administrator'),
+                role='admin',
+                action='USER_ROLE_CHANGED',
+                target_url='http://localhost:8000/api/users',
+                ip_address=request.META.get('REMOTE_ADDR', '127.0.0.1'),
+                details=f"User {user.name} role changed from '{old_role}' to '{new_role}'."
+            )
+            return Response(UserProfileSerializer(user).data)
+        except UserProfile.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 class CurrentUserView(APIView):
     """

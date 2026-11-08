@@ -5,6 +5,7 @@ import { ScanHistory } from './components/ScanHistory';
 import { UserProfileView } from './components/UserProfileView';
 import { RequestModal } from './components/RequestModal';
 import { TeamModal } from './components/TeamModal';
+import { RoleLoginModal } from './components/RoleLoginModal';
 import { Check } from 'lucide-react';
 
 import { 
@@ -39,6 +40,7 @@ export const App: React.FC = () => {
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [requestModalInitialUrl, setRequestModalInitialUrl] = useState('');
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   // Toast notification
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -46,6 +48,16 @@ export const App: React.FC = () => {
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const handleLoginSuccess = (user: UserProfile, token?: string) => {
+    setCurrentUser(user);
+    logAuditEvent(
+      'USER_LOGIN_SUCCESS',
+      'http://localhost:8000/api/auth/login',
+      `Authenticated as ${user.name} (${user.role.toUpperCase()}) for ${user.organization}. JWT session active.`
+    );
+    showToast(`Welcome, ${user.name}! Switched to ${user.role.toUpperCase()} role.`);
   };
 
   const logAuditEvent = (action: string, target: string, details: string) => {
@@ -144,6 +156,7 @@ export const App: React.FC = () => {
         currentUser={currentUser}
         setCurrentUser={setCurrentUser}
         onOpenTeamInfo={() => setIsTeamModalOpen(true)}
+        onOpenLoginModal={() => setIsLoginModalOpen(true)}
       />
 
       {/* Active Tab View (Module 1 Scope Only) */}
@@ -164,6 +177,7 @@ export const App: React.FC = () => {
             auditLogs={auditLogs}
             onSelectScan={handleSelectScan}
             onReScan={handleReScan}
+            onOpenLoginModal={() => setIsLoginModalOpen(true)}
           />
         )}
 
@@ -171,6 +185,7 @@ export const App: React.FC = () => {
           <UserProfileView
             currentUser={currentUser}
             onSwitchUser={setCurrentUser}
+            onOpenLoginModal={() => setIsLoginModalOpen(true)}
           />
         )}
       </main>
@@ -203,6 +218,14 @@ export const App: React.FC = () => {
       {isTeamModalOpen && (
         <TeamModal onClose={() => setIsTeamModalOpen(false)} />
       )}
+
+      {/* Role-Based Authentication & Switcher Modal (FR-1.1 & FR-1.2) */}
+      <RoleLoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        currentUser={currentUser}
+        onLoginSuccess={handleLoginSuccess}
+      />
 
     </div>
   );

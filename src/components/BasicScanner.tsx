@@ -12,12 +12,13 @@ import {
   FileCode, 
   Copy, 
   Check, 
-  Sparkles,
-  Terminal,
-  ExternalLink,
-  Shield,
-  Layers,
-  AlertCircle
+  Sparkles, 
+  Terminal, 
+  ExternalLink, 
+  Shield, 
+  Layers, 
+  AlertCircle,
+  Server
 } from 'lucide-react';
 import { BasicScanResult, UserProfile } from '../types';
 import { PRESET_SCANS } from '../data/mockData';
@@ -323,6 +324,83 @@ export const BasicScanner: React.FC<BasicScannerProps> = ({
         </div>
       </div>
 
+      {/* Role-Specific Workspace Banner (FR-1.1 & FR-1.2 RBAC) */}
+      <div 
+        style={{ 
+          marginBottom: '1.25rem', 
+          padding: '0.85rem 1.25rem', 
+          borderRadius: '10px', 
+          background: currentUser.role === 'admin' 
+            ? 'rgba(6, 182, 212, 0.1)' 
+            : currentUser.role === 'developer'
+            ? 'rgba(245, 158, 11, 0.1)'
+            : currentUser.role === 'assessor'
+            ? 'rgba(139, 92, 246, 0.1)'
+            : currentUser.role === 'manager'
+            ? 'rgba(244, 63, 94, 0.1)'
+            : 'rgba(16, 185, 129, 0.1)',
+          border: `1px solid ${
+            currentUser.role === 'admin' 
+              ? 'rgba(6, 182, 212, 0.3)' 
+              : currentUser.role === 'developer'
+              ? 'rgba(245, 158, 11, 0.3)'
+              : currentUser.role === 'assessor'
+              ? 'rgba(139, 92, 246, 0.3)'
+              : currentUser.role === 'manager'
+              ? 'rgba(244, 63, 94, 0.3)'
+              : 'rgba(16, 185, 129, 0.3)'
+          }`,
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          flexWrap: 'wrap', 
+          gap: '0.75rem' 
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ 
+            width: '32px', 
+            height: '32px', 
+            borderRadius: '8px', 
+            background: 'rgba(255, 255, 255, 0.08)', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center' 
+          }}>
+            {currentUser.role === 'admin' && <Server size={18} color="#06b6d4" />}
+            {currentUser.role === 'developer' && <FileCode size={18} color="#f59e0b" />}
+            {currentUser.role === 'assessor' && <ShieldCheck size={18} color="#8b5cf6" />}
+            {currentUser.role === 'manager' && <Layers size={18} color="#f43f5e" />}
+            {currentUser.role === 'customer' && <Globe size={18} color="#10b981" />}
+          </div>
+          <div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#f8fafc' }}>
+              {currentUser.role === 'admin' && 'Security Administrator Portal (MD. Abu Nayem - ID: 232-35-332)'}
+              {currentUser.role === 'developer' && 'Remediation Developer Hub (Alex Rivera - GlobalMart Retail Ltd)'}
+              {currentUser.role === 'assessor' && 'Security Assessor Workbench (Ovijeet Saha - ID: 232-35-457)'}
+              {currentUser.role === 'manager' && 'Security Governance Overview (Atiya Khanm Lucky - ID: 232-35-422)'}
+              {currentUser.role === 'customer' && 'Customer Assessment Portal (Sarah Jenkins - GlobalMart Retail Ltd)'}
+            </div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+              {currentUser.role === 'admin' && 'Full system capabilities: unrestricted scans, user management, audit trails, and server diagnostics.'}
+              {currentUser.role === 'developer' && 'Focus on code remediation: copy tailored server configuration fixes & test with 1-click re-scans.'}
+              {currentUser.role === 'assessor' && 'Deep audit mode: verify cryptographic certificates, evaluate headers, and record assessor sign-offs.'}
+              {currentUser.role === 'manager' && 'Strategic oversight: review portfolio risk metrics, monitor scores, and review assessment pipelines.'}
+              {currentUser.role === 'customer' && 'Automated security checks: inspect website score and submit requests for formal penetration tests.'}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <span className="badge badge-secondary" style={{ fontSize: '0.7rem' }}>
+            ROLE: {currentUser.role.toUpperCase()}
+          </span>
+          <span className="badge badge-info" style={{ fontSize: '0.7rem' }}>
+            JWT ACTIVE
+          </span>
+        </div>
+      </div>
+
       {/* URL Submission Card (FR-1.8) */}
       <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.75rem', position: 'relative', overflow: 'hidden' }}>
         {isScanning && <div className="scanning-bar" />}
@@ -497,31 +575,142 @@ export const BasicScanner: React.FC<BasicScannerProps> = ({
             </div>
           )}
 
-          {/* Customer Conversion Call-to-Action Card (FR-1.11) */}
-          <div 
-            className="glass-panel" 
-            style={{ 
-              padding: '1.5rem', 
-              background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.12), rgba(15, 23, 42, 0.8))', 
-              border: '1px solid rgba(6, 182, 212, 0.35)' 
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-              <ShieldCheck size={20} color="var(--cyan-primary)" />
-              <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>Request Full Security Assessment</h3>
-            </div>
-            <p style={{ fontSize: '0.785rem', color: '#cbd5e1', lineHeight: 1.5, marginBottom: '1.25rem' }}>
-              Convert basic scan telemetry into a full security audit engagement covering OWASP Top 10 vulnerabilities, manual penetration testing, and verification.
-            </p>
-            <button
-              onClick={() => onRequestFullAssessment(scanResult.url)}
-              className="btn btn-primary"
-              style={{ width: '100%', justifyContent: 'center' }}
+          {/* Role-Specific Action Card (FR-1.11, FR-1.12, FR-1.13) */}
+          {currentUser.role === 'customer' && (
+            <div 
+              className="glass-panel" 
+              style={{ 
+                padding: '1.5rem', 
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(15, 23, 42, 0.8))', 
+                border: '1px solid rgba(16, 185, 129, 0.35)' 
+              }}
             >
-              <span>Request Full Assessment</span>
-              <ArrowRight size={16} />
-            </button>
-          </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <ShieldCheck size={20} color="#10b981" />
+                <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>Request Full Security Assessment</h3>
+              </div>
+              <p style={{ fontSize: '0.785rem', color: '#cbd5e1', lineHeight: 1.5, marginBottom: '1.25rem' }}>
+                Convert basic scan results into a full security audit engagement covering OWASP Top 10 vulnerabilities, manual penetration testing, and verification.
+              </p>
+              <button
+                onClick={() => onRequestFullAssessment(scanResult.url)}
+                className="btn btn-primary"
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                <span>Request Full Assessment</span>
+                <ArrowRight size={16} />
+              </button>
+            </div>
+          )}
+
+          {currentUser.role === 'developer' && (
+            <div 
+              className="glass-panel" 
+              style={{ 
+                padding: '1.5rem', 
+                background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(15, 23, 42, 0.8))', 
+                border: '1px solid rgba(245, 158, 11, 0.35)' 
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <FileCode size={20} color="#f59e0b" />
+                <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>Developer Remediation Hub</h3>
+              </div>
+              <p style={{ fontSize: '0.785rem', color: '#cbd5e1', lineHeight: 1.5, marginBottom: '1.25rem' }}>
+                Review detected configuration issues on the right, copy tailored configuration patches (Nginx/Apache/Django), and test with a 1-click re-scan.
+              </p>
+              <button
+                onClick={() => handleRunScan(scanResult.url)}
+                disabled={isScanning}
+                className="btn btn-primary"
+                style={{ width: '100%', justifyContent: 'center', background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}
+              >
+                <Sparkles size={16} />
+                <span>Verify Fixes (1-Click Re-Scan)</span>
+              </button>
+            </div>
+          )}
+
+          {currentUser.role === 'assessor' && (
+            <div 
+              className="glass-panel" 
+              style={{ 
+                padding: '1.5rem', 
+                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(15, 23, 42, 0.8))', 
+                border: '1px solid rgba(139, 92, 246, 0.35)' 
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <CheckCircle2 size={20} color="#8b5cf6" />
+                <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>Assessor Audit Verification</h3>
+              </div>
+              <p style={{ fontSize: '0.785rem', color: '#cbd5e1', lineHeight: 1.5, marginBottom: '1.25rem' }}>
+                Baseline telemetry validated against OWASP Top 10 & NIST CSF. All 6 security headers and TLS certificate chain analyzed.
+              </p>
+              <button
+                onClick={() => alert(`Assessor Sign-Off Recorded!\nAuditor: ${currentUser.name} (${currentUser.role})\nTarget: ${scanResult.hostname}\nScore: ${scanResult.score} (${scanResult.grade})`)}
+                className="btn btn-primary"
+                style={{ width: '100%', justifyContent: 'center', background: 'linear-gradient(135deg, #8b5cf6, #6366f1)' }}
+              >
+                <CheckCircle2 size={16} />
+                <span>Sign Off on Baseline Audit</span>
+              </button>
+            </div>
+          )}
+
+          {currentUser.role === 'manager' && (
+            <div 
+              className="glass-panel" 
+              style={{ 
+                padding: '1.5rem', 
+                background: 'linear-gradient(135deg, rgba(244, 63, 94, 0.15), rgba(15, 23, 42, 0.8))', 
+                border: '1px solid rgba(244, 63, 94, 0.35)' 
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <Layers size={20} color="#f43f5e" />
+                <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>Manager Risk Oversight</h3>
+              </div>
+              <p style={{ fontSize: '0.785rem', color: '#cbd5e1', lineHeight: 1.5, marginBottom: '1.25rem' }}>
+                Strategic posture metric: {scanResult.score >= 70 ? 'Satisfactory Risk Tolerance' : 'Elevated Risk Level'}. Asset scheduled for quarterly risk review.
+              </p>
+              <button
+                onClick={() => onRequestFullAssessment(scanResult.url)}
+                className="btn btn-secondary"
+                style={{ width: '100%', justifyContent: 'center', borderColor: 'rgba(244, 63, 94, 0.4)' }}
+              >
+                <span>Authorize Full Penetration Test</span>
+                <ArrowRight size={16} />
+              </button>
+            </div>
+          )}
+
+          {currentUser.role === 'admin' && (
+            <div 
+              className="glass-panel" 
+              style={{ 
+                padding: '1.5rem', 
+                background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(15, 23, 42, 0.8))', 
+                border: '1px solid rgba(6, 182, 212, 0.35)' 
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <Server size={20} color="#06b6d4" />
+                <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>Admin Engine Diagnostics</h3>
+              </div>
+              <p style={{ fontSize: '0.785rem', color: '#cbd5e1', lineHeight: 1.5, marginBottom: '1.25rem' }}>
+                Live DRF API connection: HTTP 200 OK. Probe execution time: ~210ms. RFC 3986 & SSRF filter policies active.
+              </p>
+              <button
+                onClick={() => onRequestFullAssessment(scanResult.url)}
+                className="btn btn-primary"
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                <span>Dispatch Full Assessment</span>
+                <ArrowRight size={16} />
+              </button>
+            </div>
+          )}
 
         </div>
 

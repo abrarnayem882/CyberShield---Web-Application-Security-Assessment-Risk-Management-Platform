@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CyberShield - MD. Abu Nayem Module 1 Activity Diagrams</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --border: #1f2937;
+      --accent: #06b6d4;
+      --accent-glow: rgba(6, 182, 212, 0.25);
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --success: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    .header {
+      max-width: 1400px;
+      margin: 0 auto 24px auto;
+      padding: 24px;
+      background: linear-gradient(135deg, rgba(17, 24, 39, 0.9), rgba(15, 23, 42, 0.9));
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-info h1 {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .header-sub {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      margin-top: 6px;
+    }
+
+    .header-sub strong {
+      color: #38bdf8;
+    }
+
+    .tabs {
+      max-width: 1400px;
+      margin: 0 auto 20px auto;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      background: #0d131f;
+      padding: 8px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: #04121f;
+      border-color: var(--accent);
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .content-area {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .diagram-card {
+      display: none;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .diagram-card.active {
+      display: block;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .card-top h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .card-top p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .btn-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: rgba(6, 182, 212, 0.15);
+      border-color: rgba(6, 182, 212, 0.4);
+      color: #38bdf8;
+    }
+
+    .btn-primary:hover {
+      background: rgba(6, 182, 212, 0.3);
+      color: #ffffff;
+    }
+
+    .diagram-viewport {
+      background: #0a0e17;
+      border: 1px solid #1a2234;
+      border-radius: 10px;
+      padding: 30px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: auto;
+      min-height: 480px;
+    }
+
+    .mermaid {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    .mermaid svg {
+      max-width: 100% !important;
+      height: auto !important;
+    }
+
+    .footer-hints {
+      margin-top: 24px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .footer-hints span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-info">
+      <h1>
+        CyberShield Activity Diagrams
+        <span class="badge">Module 1 UML</span>
+      </h1>
+      <div class="header-sub">
+        Assigned Member: <strong>MD. ABU NAYEM</strong> (ID: <strong>232-35-332</strong>) &bull; Security Architecture & Backend Lead
+      </div>
+    </div>
+    <div class="btn-actions">
+      <button class="btn btn-primary" onclick="window.print()">🖨️ Print / Save as PDF</button>
+      <a class="btn btn-primary" href="https://mermaid.live" target="_blank" rel="noopener">🌐 Open in Mermaid Live</a>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="tabs">
+    <button class="tab-btn active" onclick="showTab(0)">📌 Master Diagram (All FRs)</button>
+    <button class="tab-btn" onclick="showTab(1)">🔑 FR 1.1: Auth & RBAC</button>
+    <button class="tab-btn" onclick="showTab(2)">🌐 FR 1.2: URL Submission API</button>
+    <button class="tab-btn" onclick="showTab(3)">🛡️ FR 1.3: Safe Checks Engine</button>
+    <button class="tab-btn" onclick="showTab(4)">📊 FR 1.4: Scoring & Grading</button>
+    <button class="tab-btn" onclick="showTab(5)">💾 FR 1.5: Secure DB & Audit</button>
+  </nav>
+
+  <main class="content-area">
+
+    <!-- TAB 0: Master Diagram -->
+    <div class="diagram-card active" id="tab-0">
+      <div class="card-top">
+        <div>
+          <h2>Master End-to-End Activity Diagram (All 5 Functional Requirements)</h2>
+          <p>UML swimlanes connecting User, Auth Gateway (FR 1.1), Scanner API (FR 1.2), Concurrency Safe Checks (FR 1.3), Scoring (FR 1.4), and Storage (FR 1.5).</p>
+        </div>
+      </div>
+      <div class="diagram-viewport">
+        <div class="mermaid">
+flowchart TD
+    subgraph Swimlane_Client ["Actor: User / Client"]
+        start([● Start])
+        input_creds["Enter Username & Password"]
+        submit_url["Submit Target Website URL (POST /api/scan)"]
+        view_report["Receive & Render Basic Security Report"]
+        final_node([● Final: Scan Complete])
+    end
+
+    subgraph Swimlane_Auth ["Gateway: Auth, JWT & RBAC (FR 1.1)"]
+        verify_creds{"Validate Credentials & Hash Match?"}
+        gen_jwt["Generate Signed JWT (UserID, Role, Permissions, Exp)"]
+        auth_failed["Return 401 Unauthorized Log Failed Attempt"]
+        auth_end([● End])
+        validate_token{"Validate Incoming JWT: Signature Valid & Not Expired?"}
+        check_rbac{"Check RBAC: Role has Scan Permission?"}
+        perm_denied["Return 403 Forbidden"]
+    end
+
+    subgraph Swimlane_Scanner ["API & Scanner Engine (FR 1.2, 1.3, 1.4)"]
+        validate_url{"Validate URL Syntax & Safe Boundary (RFC 3986, Public IP)?"}
+        url_error["Return 400 Bad Request (Invalid / Disallowed Target)"]
+        init_scan["Initialize Scan Context Target: Normalized URL"]
+        fork_checks["==== FORK: Parallel Safe Checks (FR 1.3) ===="]
+        check_ssl["1. SSL/TLS Handshake Check\n• Protocol (TLS 1.2/1.3)\n• Cert Validity & Expiry\n• Cipher Suite Strength"]
+        check_redirect["2. HTTPS Redirection Check\n• HTTP Port 80 Probe\n• 301/308 Redirect Enforced"]
+        check_headers["3. Security Headers Check\n• HSTS, CSP, X-Frame-Options\n• X-Content-Type, Referrer-Policy"]
+        check_cookies["4. Cookie Attributes Check\n• Secure, HttpOnly, SameSite"]
+        check_exposure["5. Info Exposure Check\n• Server / X-Powered-By Leaks"]
+        join_checks["==== JOIN: Aggregate Check Results ===="]
+        calc_penalties["Aggregate Deductions (FR 1.4):\n• Critical: -25 pts | High: -15 pts\n• Medium: -8 pts | Low: -3 pts"]
+        calc_score["Calculate Final Score:\nScore = Max(0, 100 - Total Penalties)"]
+        assign_grade["Map Score to Letter Grade:\n• 90-100: A+ | 80-89: A\n• 70-79: B | 60-69: C | <50: F"]
+        gen_remediation["Generate Platform Remediation (Nginx, Apache, Django configs)"]
+    end
+
+    subgraph Swimlane_DB ["Data & Audit Store (FR 1.5)"]
+        db_fetch_user[("Query User & Role Matrix")]
+        db_save_pending[("Insert Scan Record (Status: PENDING)")]
+        db_save_results[("Update Scan Record: Score, Grade, Findings, Remediation")]
+        db_audit_log[("Insert Audit Log: User, IP, Target, Action, Timestamp")]
+    end
+
+    start --> input_creds
+    input_creds --> db_fetch_user
+    db_fetch_user --> verify_creds
+    verify_creds -- "No" --> auth_failed --> auth_end
+    verify_creds -- "Yes" --> gen_jwt --> submit_url
+    submit_url --> validate_token
+    validate_token -- "Invalid" --> auth_failed
+    validate_token -- "Valid" --> check_rbac
+    check_rbac -- "No" --> perm_denied --> auth_end
+    check_rbac -- "Authorized" --> validate_url
+    validate_url -- "Malformed / Private IP" --> url_error --> auth_end
+    validate_url -- "Valid Public Target" --> db_save_pending
+    db_save_pending --> init_scan
+    init_scan --> fork_checks
+    fork_checks --> check_ssl
+    fork_checks --> check_redirect
+    fork_checks --> check_headers
+    fork_checks --> check_cookies
+    fork_checks --> check_exposure
+    check_ssl --> join_checks
+    check_redirect --> join_checks
+    check_headers --> join_checks
+    check_cookies --> join_checks
+    check_exposure --> join_checks
+    join_checks --> calc_penalties
+    calc_penalties --> calc_score
+    calc_score --> assign_grade
+    assign_grade --> gen_remediation
+    gen_remediation --> db_save_results
+    db_save_results --> db_audit_log
+    db_audit_log --> view_report
+    view_report --> final_node
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 1: FR 1.1 -->
+    <div class="diagram-card" id="tab-1">
+      <div class="card-top">
+        <div>
+          <h2>FR-MAN-1.1: Secure Login, JWT Authentication, Token Validation & RBAC</h2>
+          <p>Login authentication flow, password hash verification, token generation, and Bearer token RBAC authorization.</p>
+        </div>
+      </div>
+      <div class="diagram-viewport">
+        <div class="mermaid">
+flowchart TD
+    A([● Start: User Initiates Login]) --> B["Receive Credentials (Email/Username, Password)"]
+    B --> C["Lookup User Record in Database"]
+    C --> D{"User Exists & Active?"}
+    D -- "No" --> E["Return 401: Invalid Credentials"] --> Z1([● Terminate])
+    D -- "Yes" --> F["Verify Password Hash (PBKDF2/bcrypt)"]
+    F --> G{"Password Matches?"}
+    G -- "No" --> H["Increment Failed Login Count"] --> E
+    G -- "Yes" --> I["Reset Failed Count & Retrieve Role & Permissions"]
+    I --> J["Construct JWT Payload:\n{sub: user_id, role: role_name, perms: [...], exp: timestamp}"]
+    J --> K["Sign JWT using HMAC-SHA256 / RSA Secret Key"]
+    K --> L["Return 200 OK with Access & Refresh Tokens"]
+    L --> M([● Sub-Activity: Protected Request Incoming])
+    M --> N["Extract Bearer Token from HTTP Authorization Header"]
+    N --> O{"Token Present & Format Valid?"}
+    O -- "No" --> P["Return 401: Token Missing / Malformed"] --> Z2([● Terminate])
+    O -- "Yes" --> Q["Verify Token Signature & Expiry"]
+    Q --> R{"Signature Valid & Not Expired?"}
+    R -- "No" --> S["Return 401: Token Expired or Invalid"] --> Z2
+    R -- "Yes" --> T["Extract User Claims & Requested Endpoint Action"]
+    T --> U{"Role Authorized by RBAC Policy?"}
+    U -- "No" --> V["Return 403: Forbidden (Insufficient Privileges)"] --> Z2
+    U -- "Yes" --> W["Attach User Context to Request Pipeline"] --> X([● Proceed to Target API])
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: FR 1.2 -->
+    <div class="diagram-card" id="tab-2">
+      <div class="card-top">
+        <div>
+          <h2>FR-MAN-1.2: Authorized Website Submission API</h2>
+          <p>URL syntax normalization, DNS lookup verification, SSRF/private address defense, and rate-limiting.</p>
+        </div>
+      </div>
+      <div class="diagram-viewport">
+        <div class="mermaid">
+flowchart TD
+    A([● Start: POST /api/scan Request]) --> B["Authenticate & Authorize Request via FR 1.1"]
+    B --> C["Parse Request Body: { 'url': target_url }"]
+    C --> D{"URL String Provided?"}
+    D -- "No" --> E["Return 400: 'url' parameter is required"] --> Z([● Terminate])
+    D -- "Yes" --> F["Scheme Sanitization:\nPrepend 'https://' if missing scheme"]
+    F --> G["Parse URL Components (RFC 3986: Scheme, Host, Port)"]
+    G --> H{"Hostname Resolvable via DNS?"}
+    H -- "No" --> I["Return 400: Hostname could not be resolved"] --> Z
+    H -- "Yes" --> J["Resolve IP Address of Hostname"]
+    J --> K{"Is IP Private / Loopback / Reserved?\n(127.0.0.1, 10.0.0.0/8, 192.168.0.0/16)"}
+    K -- "Yes" --> L["Return 403: Scanning internal/private IP targets prohibited"] --> Z
+    K -- "No" --> M["Check Rate Limit for Organization/User"]
+    M --> N{"Rate Limit Exceeded?"}
+    N -- "Yes" --> O["Return 429: Too Many Scan Requests"] --> Z
+    N -- "No" --> P["Create Database Scan Record:\nStatus = 'IN_PROGRESS', Timestamp = NOW()"]
+    P --> Q["Dispatch Target to Safe Security Scanner Engine"] --> S([● Proceed to Safe Checks FR 1.3])
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: FR 1.3 -->
+    <div class="diagram-card" id="tab-3">
+      <div class="card-top">
+        <div>
+          <h2>FR-MAN-1.3: Safe Automated Security Checks Engine</h2>
+          <p>Parallel non-invasive probing: SSL/TLS handshake, HTTPS redirect check, HTTP headers, cookie security flags, and banner leaks.</p>
+        </div>
+      </div>
+      <div class="diagram-viewport">
+        <div class="mermaid">
+flowchart TD
+    A([● Start: Target URL Dispatched]) --> B["Initialize Findings List = [ ] & Checks List = [ ]"]
+    B --> Fork["==== FORK: Execute Concurrent Safe Checks ===="]
+
+    subgraph B1 ["1. SSL/TLS Certificate"]
+        Fork --> C1["Initiate TLS Handshake on Port 443"]
+        C1 --> C2{"Handshake Succeeded?"}
+        C2 -- "No" --> C3["Record Critical Finding:\nSSL Handshake Failed / Untrusted"]
+        C2 -- "Yes" --> C4["Extract Peer Certificate, Cipher & Protocol"]
+        C4 --> C5{"Protocol is TLS 1.2 or 1.3?"}
+        C5 -- "No (TLS 1.0/1.1/SSLv3)" --> C6["Record High Finding: Deprecated TLS Protocol"]
+        C5 -- "Yes" --> C7["Check Expiry Date vs Current Time"]
+        C7 --> C8{"Certificate Valid & > 14 Days Remaining?"}
+        C8 -- "No" --> C9["Record High Finding: Expired or Near-Expiry Cert"]
+        C8 -- "Yes" --> C10["Record Passed Check: Valid SSL/TLS Cert"]
+    end
+
+    subgraph B2 ["2. HTTPS Enforcement"]
+        Fork --> D1["Send Non-redirecting GET/HEAD Request to Port 80 (HTTP)"]
+        D1 --> D2{"Response Status in [301, 302, 308]?"}
+        D2 -- "No (Status 200 on HTTP)" --> D3["Record High Finding:\nHTTP Does Not Enforce HTTPS Redirection"]
+        D2 -- "Yes" --> D4{"Redirect Location Starts with 'https://'?"}
+        D4 -- "No" --> D3
+        D4 -- "Yes" --> D5["Record Passed Check: Strict HTTP to HTTPS Redirection"]
+    end
+
+    subgraph B3 ["3. Security Headers"]
+        Fork --> E1["Inspect HTTPS Response Headers"]
+        E1 --> E2["Evaluate Headers:\n• HSTS (Strict-Transport-Security)\n• Content-Security-Policy (CSP)\n• X-Frame-Options (Clickjacking)\n• X-Content-Type-Options\n• Referrer-Policy\n• Permissions-Policy"]
+        E2 --> E3["For Each Missing / Weak Header:\nCreate Structured Finding (Severity Medium/Low)"]
+        E2 --> E4["For Each Present Header:\nCreate Passed Check Item"]
+    end
+
+    subgraph B4 ["4. Cookie Security Flags"]
+        Fork --> F1["Extract 'Set-Cookie' Headers"]
+        F1 --> F2{"Any Cookies Set?"}
+        F2 -- "None" --> F3["Record Passed Check: No Session Cookies Exposed"]
+        F2 -- "Yes" --> F4["Analyze Attributes per Cookie:\n• 'Secure' Flag Present?\n• 'HttpOnly' Flag Present?\n• 'SameSite' (Lax/Strict) Present?"]
+        F4 --> F5["For Each Missing Flag:\nRecord High/Medium Finding (Session Hijacking / XSS Risk)"]
+    end
+
+    subgraph B5 ["5. Info Exposure & Banners"]
+        Fork --> G1["Scan Headers for Technology Disclosure:\n• Server (e.g. Apache/2.4.41, nginx/1.18.0)\n• X-Powered-By (e.g. PHP/8.1, Express)\n• X-AspNet-Version"]
+        G1 --> G2{"Version Numbers or Server Banners Leaked?"}
+        G2 -- "Yes" --> G3["Record Low Finding:\nServer Information Exposure Detected"]
+        G2 -- "No" --> G4["Record Passed Check: Minimal Server Signature"]
+    end
+
+    C3 --> Join["==== JOIN: Consolidate All Checks & Findings ===="]
+    C6 --> Join
+    C9 --> Join
+    C10 --> Join
+    D3 --> Join
+    D5 --> Join
+    E3 --> Join
+    E4 --> Join
+    F3 --> Join
+    F5 --> Join
+    G3 --> Join
+    G4 --> Join
+    Join --> H([● Proceed to Scoring Engine FR 1.4])
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: FR 1.4 -->
+    <div class="diagram-card" id="tab-4">
+      <div class="card-top">
+        <div>
+          <h2>FR-MAN-1.4: Security Scoring & Severity Calculation Engine</h2>
+          <p>Deduction algorithm based on severity weights (-25, -15, -8, -3), letter grade mapping (A+ to F), and remediation generator.</p>
+        </div>
+      </div>
+      <div class="diagram-viewport">
+        <div class="mermaid">
+flowchart TD
+    A([● Start: Raw Findings & Checks Received]) --> B["Set Base Score = 100\nSet Total Deduction = 0"]
+    B --> C["Iterate Through Each Recorded Finding in Findings List"]
+    C --> D{"Finding Severity Level?"}
+    D -- "Critical" --> E["Add -25 to Total Deduction\nTag Remediation Priority 1"]
+    D -- "High" --> F["Add -15 to Total Deduction\nTag Remediation Priority 2"]
+    D -- "Medium" --> G["Add -8 to Total Deduction\nTag Remediation Priority 3"]
+    D -- "Low" --> H["Add -3 to Total Deduction\nTag Remediation Priority 4"]
+
+    E --> I{"More Findings in List?"}
+    F --> I
+    G --> I
+    H --> I
+
+    I -- "Yes" --> C
+    I -- "No" --> J["Calculate Final Score:\nRaw Score = Base Score (100) - Total Deduction\nFinal Score = Max(0, Raw Score)"]
+
+    J --> K{"Final Score Range?"}
+    K -- ">= 90" --> L["Assign Grade: 'A+'\nPosture: Excellent Security Posture"]
+    K -- "80 - 89" --> M["Assign Grade: 'A'\nPosture: Good Security Posture"]
+    K -- "70 - 79" --> N["Assign Grade: 'B'\nPosture: Fair - Minor Vulnerabilities"]
+    K -- "60 - 69" --> O["Assign Grade: 'C'\nPosture: Moderate Risk - Missing Hardening"]
+    K -- "50 - 59" --> P["Assign Grade: 'D'\nPosture: High Risk - Significant Deficiencies"]
+    K -- "< 50" --> Q["Assign Grade: 'F'\nPosture: Critical Risk - Action Required"]
+
+    L --> R["Compile Tailored Remediation Code Snippets:\n• Nginx server block directives\n• Apache .htaccess config\n• Django Security Middleware settings"]
+    M --> R
+    N --> R
+    O --> R
+    P --> R
+    Q --> R
+    R --> S([● Proceed to Secure Storage FR 1.5])
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: FR 1.5 -->
+    <div class="diagram-card" id="tab-5">
+      <div class="card-top">
+        <div>
+          <h2>FR-MAN-1.5: Secure Storage of Scan Requests, Results & Audit Logging</h2>
+          <p>Database transaction management, scan record update, JSON result serialization, and immutable audit trail creation.</p>
+        </div>
+      </div>
+      <div class="diagram-viewport">
+        <div class="mermaid">
+flowchart TD
+    A([● Start: Final Report Data Ready]) --> B["Begin Database Transaction"]
+    B --> C["Serialize Scan Results into JSON:\n{ score, grade, checks_passed, checks_failed, findings, remediation }"]
+    C --> D["Update 'scans' Table Record:\n• status = 'COMPLETED'\n• score = calculated_score\n• letter_grade = grade\n• completed_at = CURRENT_TIMESTAMP\n• result_data = serialized_json"]
+    D --> E{"Scan Update Successful?"}
+    E -- "No" --> F["Rollback Transaction\nReturn 500: Database Persistence Error"] --> Z([● Terminate])
+    E -- "Yes" --> G["Insert Audit Log Entry into 'audit_logs':\n• user_id = authenticated_user.id\n• ip_address = client_ip\n• action = 'WEBSITE_BASIC_SCAN_COMPLETED'\n• target_asset = target_url\n• score_assigned = score\n• timestamp = CURRENT_TIMESTAMP"]
+    G --> H{"Audit Insert Successful?"}
+    H -- "No" --> F
+    H -- "Yes" --> I["Commit Database Transaction"]
+    I --> J["Construct HTTP 200 Response Payload:\nInclude Scan ID, Target, Score, Grade, Findings, Remediation"]
+    J --> K["Send Response to Client"]
+    K --> L([● Final Node: Operation Complete])
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="footer-hints">
+    <span>💡 Tip: Click <strong>Print / Save as PDF</strong> to generate clean figures for your report.</span>
+    <span>💡 For Word/Docs: Right-click any diagram & choose <strong>Save Image</strong> or open in <a href="https://mermaid.live" target="_blank" style="color:#38bdf8;">mermaid.live</a>.</span>
+  </footer>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        primaryColor: '#1e293b',
+        primaryBorderColor: '#38bdf8',
+        primaryTextColor: '#f8fafc',
+        lineColor: '#38bdf8',
+        secondaryColor: '#0f172a',
+        tertiaryColor: '#1e1b4b'
+      },
+      flowchart: {
+        curve: 'basis',
+        htmlLabels: true
+      }
+    });
+
+    function showTab(index) {
+      document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', i === index);
+      });
+      document.querySelectorAll('.diagram-card').forEach((card, i) => {
+        card.classList.toggle('active', i === index);
+      });
+    }
+  </script>
+</body>
+</html>

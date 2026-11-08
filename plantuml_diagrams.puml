@@ -1,0 +1,478 @@
+/' 
+  CyberShield - Web Application Security Assessment & Risk Management Platform
+  Module 1: Website Submission, Basic Security Report & User Management
+  Student: MD. ABU NAYEM (ID: 232-35-332)
+  PlantUML Activity Diagrams for all Functional Requirements (FR-MAN-1.1 to 1.5)
+'/
+
+' ==============================================================================
+' MASTER DIAGRAM: All 5 Functional Requirements with UML Swimlanes
+' ==============================================================================
+@startuml master_activity_diagram
+skinparam ActivityFontSize 12
+skinparam ActivityFontName "Segoe UI"
+skinparam ArrowColor #006699
+skinparam ActivityBorderColor #004477
+skinparam ActivityBackgroundColor #F0F8FF
+
+title CyberShield - Master Activity Diagram (Module 1 - MD. ABU NAYEM)
+
+|#LightYellow|Actor: User / Client|
+start
+:Enter Username & Password;
+
+|#LightCyan|Gateway: Auth & RBAC (FR 1.1)|
+:Query User & Password Hash from DB;
+if (Credentials Valid?) then (yes)
+    :Generate Signed JWT\n(UserID, Role, Permissions, Expiry);
+    |Actor: User / Client|
+    :Receive JWT Access Token;
+    :Submit Target Website URL\n(POST /api/scan with Bearer Token);
+else (no)
+    |Gateway: Auth & RBAC (FR 1.1)|
+    :Return 401 Unauthorized;
+    stop
+endif
+
+|Gateway: Auth & RBAC (FR 1.1)|
+:Extract Bearer Token from Request Header;
+if (Signature Valid & Not Expired?) then (yes)
+    if (Role Authorized by RBAC Policy?) then (yes)
+        |#MintCream|API & Scanner Engine (FR 1.2 - 1.4)|
+        :Sanitize URL & Normalize Scheme (https://);
+        if (Hostname Resolves & Public IP?) then (yes)
+            |#LavenderBlush|Data & Audit Store (FR 1.5)|
+            :Insert Scan Record (Status: PENDING);
+            
+            |API & Scanner Engine (FR 1.2 - 1.4)|
+            :Initialize Scan Context;
+            
+            fork
+                :1. SSL/TLS Handshake Check\n- TLS 1.2/1.3 protocol verification\n- Certificate validity & expiry date\n- Cipher suite strength;
+            fork again
+                :2. HTTPS Redirection Check\n- Port 80 HTTP probe\n- 301/308 redirect enforcement;
+            fork again
+                :3. Security Headers Check\n- HSTS, CSP, X-Frame-Options\n- X-Content-Type, Referrer-Policy;
+            fork again
+                :4. Cookie Attributes Check\n- Secure, HttpOnly, SameSite flags;
+            fork again
+                :5. Info Exposure Check\n- Server & X-Powered-By banners;
+            end fork
+            
+            :Consolidate Findings & Passed Checks;
+            :Aggregate Severity Deductions\n(Critical -25, High -15, Medium -8, Low -3);
+            :Compute Final Score = Max(0, 100 - Total Deductions);
+            :Map Score to Letter Grade (A+, A, B, C, D, F);
+            :Generate Remediation Snippets (Nginx, Apache, Django);
+            
+            |Data & Audit Store (FR 1.5)|
+            :Update Scan Record in Database\n(Status: COMPLETED, Score, Grade, Findings JSON);
+            :Insert Audit Log Entry\n(User ID, Client IP, Target, Action, Timestamp);
+            
+            |Actor: User / Client|
+            :Receive HTTP 200 OK Response;
+            :Render Basic Security Report & Score Gauge;
+            stop
+        else (no)
+            |API & Scanner Engine (FR 1.2 - 1.4)|
+            :Return 400 Bad Request\n(Invalid Host or Private IP Target Blocked);
+            stop
+        endif
+    else (no)
+        |Gateway: Auth & RBAC (FR 1.1)|
+        :Return 403 Forbidden\n(Insufficient Role Privileges);
+        stop
+    endif
+else (no)
+    |Gateway: Auth & RBAC (FR 1.1)|
+    :Return 401 Unauthorized\n(Token Invalid or Expired);
+    stop
+endif
+@enduml
+
+
+' ==============================================================================
+' FR-MAN-1.1: Secure Login, JWT Authentication, Token Validation & RBAC
+' ==============================================================================
+@startuml fr_1_1_login_jwt_rbac
+skinparam ActivityFontSize 12
+skinparam ActivityBackgroundColor #F8F9FA
+skinparam ActivityBorderColor #343A40
+skinparam ArrowColor #495057
+
+title FR-MAN-1.1: Secure Login, JWT Authentication, Token Validation & RBAC
+
+start
+:Receive Login Request (Username/Email, Password);
+:Query Database for User Account by Username/Email;
+
+if (User Account Exists & Active?) then (yes)
+    :Hash Input Password & Compare with Stored Hash (PBKDF2/bcrypt);
+    if (Password Matches?) then (yes)
+        :Reset Failed Login Attempt Counter;
+        :Retrieve User Roles and Permission Set;
+        :Build JWT Claims (sub, role, permissions, iss, exp);
+        :Sign Token with Secret Key (HMAC-SHA256);
+        :Return 200 OK with Access Token & Refresh Token;
+        
+        note right: Protected API Sub-Workflow begins below
+        :Incoming API Request with Authorization: Bearer <token>;
+        :Extract Token String from Header;
+        
+        if (Bearer Token Present?) then (yes)
+            :Verify Cryptographic Signature using Secret Key;
+            if (Signature Valid?) then (yes)
+                :Check Token Expiration Timestamp (exp claim);
+                if (Token Not Expired?) then (yes)
+                    :Extract User ID and Assigned Role;
+                    :Lookup Endpoint Required Permissions in RBAC Matrix;
+                    if (User Role Granted Required Permission?) then (yes)
+                        :Attach User Context to Request Pipeline;
+                        :Proceed to Authorized API Controller;
+                        stop
+                    else (no)
+                        :Return 403 Forbidden (Insufficient Privileges);
+                        stop
+                    endif
+                else (no)
+                    :Return 401 Unauthorized (Token Expired);
+                    stop
+                endif
+            else (no)
+                :Return 401 Unauthorized (Invalid Signature);
+                stop
+            endif
+        else (no)
+            :Return 401 Unauthorized (Missing Bearer Token);
+            stop
+        endif
+    else (no)
+        :Increment Failed Login Attempt Counter;
+        :Return 401 Unauthorized (Invalid Credentials);
+        stop
+    endif
+else (no)
+    :Return 401 Unauthorized (User Not Found);
+    stop
+endif
+@enduml
+
+
+' ==============================================================================
+' FR-MAN-1.2: Authorized Website Submission API
+' ==============================================================================
+@startuml fr_1_2_website_submission
+skinparam ActivityFontSize 12
+skinparam ActivityBackgroundColor #F8F9FA
+skinparam ActivityBorderColor #2B6CB0
+skinparam ArrowColor #2B6CB0
+
+title FR-MAN-1.2: Authorized Website Submission & Target Validation API
+
+start
+:Receive POST /api/scan Request;
+:Execute FR-MAN-1.1 Auth & RBAC Verification;
+
+if (Request Authenticated & Authorized?) then (yes)
+    :Parse Request JSON Body {"url": target_url};
+    if (URL Parameter Present & Non-Empty?) then (yes)
+        if (URL starts with http:// or https://?) then (yes)
+            :Keep Provided Scheme;
+        else (no)
+            :Prepend default "https://";
+        endif
+        
+        :Parse Hostname, Port, and Path (RFC 3986 Standard);
+        :Perform DNS Lookup on Hostname;
+        
+        if (DNS Resolution Succeeded?) then (yes)
+            :Extract Target Resolved IPv4 / IPv6 Address;
+            if (IP is Loopback (127.0.0.0/8) or Private (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)?) then (yes)
+                :Log SSRF Protection Alert;
+                :Return 403 Forbidden (Internal/Private Target Scanning Disallowed);
+                stop
+            else (no)
+                :Check Rate Limit for Submitting User / Tenant;
+                if (Rate Limit Exceeded?) then (yes)
+                    :Return 429 Too Many Requests (Rate Limit Quota Reached);
+                    stop
+                else (no)
+                    :Generate Unique Scan ID (UUID);
+                    :Insert Scan Record into DB (Status = 'PENDING');
+                    :Dispatch Target to Safe Automated Checks Engine (FR 1.3);
+                    :Return 202 Accepted / Begin Synchronous Safe Scan;
+                    stop
+                endif
+            endif
+        else (no)
+            :Return 400 Bad Request (DNS Resolution Failed: Host Not Found);
+            stop
+        endif
+    else (no)
+        :Return 400 Bad Request (Missing required 'url' parameter);
+        stop
+    endif
+else (no)
+    :Return 401/403 (Authentication or Authorization Denied);
+    stop
+endif
+@enduml
+
+
+' ==============================================================================
+' FR-MAN-1.3: Safe Automated Security Checks Engine
+' ==============================================================================
+@startuml fr_1_3_safe_checks
+skinparam ActivityFontSize 12
+skinparam ActivityBackgroundColor #F8F9FA
+skinparam ActivityBorderColor #1A365D
+skinparam ArrowColor #2C5282
+
+title FR-MAN-1.3: Safe Automated Security Checks Engine
+
+start
+:Receive Validated Target URL & Port;
+:Initialize Findings List = [] and Passed Checks List = [];
+
+fork
+    partition "1. SSL/TLS Certificate Check" {
+        :Establish Socket Connection to Host:443;
+        :Wrap Socket with SSL Default Context;
+        if (TLS Handshake Successful?) then (yes)
+            :Extract Peer Certificate, Cipher Suite, and TLS Version;
+            if (TLS Version is 1.2 or 1.3?) then (yes)
+                :Add Passed Check: "Modern TLS Protocol";
+            else (no)
+                :Add High Finding: "Deprecated TLS Protocol (TLS 1.0/1.1)";
+            endif
+            
+            if (Certificate Expiry Date > 14 Days from Now?) then (yes)
+                :Add Passed Check: "Valid SSL Certificate";
+            else (no)
+                :Add High Finding: "SSL Certificate Expired or Expiring Soon";
+            endif
+        else (no)
+            :Add Critical Finding: "SSL/TLS Handshake Failed or Invalid Certificate";
+        endif
+    }
+fork again
+    partition "2. HTTPS Redirection Check" {
+        :Open HTTP Connection to Host:80 without auto-redirect;
+        :Inspect HTTP Response Status Code;
+        if (Status Code in [301, 302, 308]?) then (yes)
+            if (Location Header starts with "https://"?) then (yes)
+                :Add Passed Check: "HTTP to HTTPS Redirection Enforced";
+            else (no)
+                :Add High Finding: "Insecure Redirection Location";
+            endif
+        else (no)
+            :Add High Finding: "HTTP Traffic Not Redirected to HTTPS";
+        endif
+    }
+fork again
+    partition "3. HTTP Security Headers Check" {
+        :Query Target Endpoint over HTTPS;
+        :Extract Response Headers;
+        
+        if (HSTS (Strict-Transport-Security) Header Present?) then (yes)
+            :Add Passed Check: "HSTS Enforced";
+        else (no)
+            :Add Medium Finding: "Missing HSTS Header";
+        endif
+        
+        if (Content-Security-Policy (CSP) Header Present?) then (yes)
+            :Add Passed Check: "CSP Configured";
+        else (no)
+            :Add Medium Finding: "Missing Content-Security-Policy";
+        endif
+        
+        if (X-Frame-Options Header Present?) then (yes)
+            :Add Passed Check: "Clickjacking Protection Enabled";
+        else (no)
+            :Add Medium Finding: "Missing X-Frame-Options (Clickjacking Risk)";
+        endif
+        
+        if (X-Content-Type-Options Header == 'nosniff'?) then (yes)
+            :Add Passed Check: "MIME-Sniffing Protection Active";
+        else (no)
+            :Add Low Finding: "Missing X-Content-Type-Options";
+        endif
+        
+        if (Referrer-Policy Header Present?) then (yes)
+            :Add Passed Check: "Referrer-Policy Set";
+        else (no)
+            :Add Low Finding: "Missing Referrer-Policy Header";
+        endif
+    }
+fork again
+    partition "4. Cookie Security Attributes Check" {
+        :Collect 'Set-Cookie' Headers from Response;
+        if (Any Cookies Returned?) then (yes)
+            if (All Cookies contain 'Secure' Flag?) then (yes)
+                :Add Passed Check: "Secure Cookie Flag Enforced";
+            else (no)
+                :Add High Finding: "Missing 'Secure' Flag on Cookies";
+            endif
+            
+            if (All Sensitive Cookies contain 'HttpOnly' Flag?) then (yes)
+                :Add Passed Check: "HttpOnly Flag Enforced (XSS Shield)";
+            else (no)
+                :Add Medium Finding: "Missing 'HttpOnly' Flag on Cookies";
+            endif
+            
+            if (All Cookies declare 'SameSite' Attribute?) then (yes)
+                :Add Passed Check: "SameSite Cookie Attribute Present";
+            else (no)
+                :Add Medium Finding: "Missing 'SameSite' Attribute (CSRF Risk)";
+            endif
+        else (no)
+            :Add Passed Check: "No Session Cookies Set on Landing Endpoint";
+        endif
+    }
+fork again
+    partition "5. Information Exposure Check" {
+        :Inspect 'Server' Header and 'X-Powered-By' Header;
+        if (Server Header exposes specific version (e.g. Apache/2.4.41)?) then (yes)
+            :Add Low Finding: "Server Banner Leaks Version Number";
+        else (no)
+            :Add Passed Check: "Server Header Hardened or Obfuscated";
+        endif
+        
+        if ('X-Powered-By' or 'X-AspNet-Version' Header exists?) then (yes)
+            :Add Low Finding: "Technology Disclosure via X-Powered-By";
+        else (no)
+            :Add Passed Check: "No Technology Disclosure Headers";
+        endif
+    }
+end fork
+
+:Consolidate All Findings and Passed Checks into Raw Results Object;
+:Pass Results to Scoring Engine (FR 1.4);
+stop
+@enduml
+
+
+' ==============================================================================
+' FR-MAN-1.4: Security Scoring & Severity Calculation Engine
+' ==============================================================================
+@startuml fr_1_4_scoring_engine
+skinparam ActivityFontSize 12
+skinparam ActivityBackgroundColor #F8F9FA
+skinparam ActivityBorderColor #4A5568
+skinparam ArrowColor #2D3748
+
+title FR-MAN-1.4: Security Scoring & Severity Calculation Engine
+
+start
+:Receive Findings List from FR 1.3 Safe Checks;
+:Initialize Base Score = 100;
+:Initialize Total Penalties = 0;
+
+while (More findings in Findings List?) is (yes)
+    :Fetch Next Finding Object;
+    switch (Finding Severity Level?)
+    case (Critical)
+        :Penalty = 25;
+        :Total Penalties = Total Penalties + 25;
+    case (High)
+        :Penalty = 15;
+        :Total Penalties = Total Penalties + 15;
+    case (Medium)
+        :Penalty = 8;
+        :Total Penalties = Total Penalties + 8;
+    case (Low)
+        :Penalty = 3;
+        :Total Penalties = Total Penalties + 3;
+    endswitch
+endwhile (no)
+
+:Calculate Raw Score = Base Score (100) - Total Penalties;
+:Apply Floor Constraint: Final Score = Max(0, Raw Score);
+
+if (Final Score >= 90) then (yes)
+    :Assign Grade: "A+";
+    :Posture Description = "Excellent Security Posture";
+elseif (Final Score >= 80) then (yes)
+    :Assign Grade: "A";
+    :Posture Description = "Good Security Posture";
+elseif (Final Score >= 70) then (yes)
+    :Assign Grade: "B";
+    :Posture Description = "Fair - Minor Vulnerabilities Detected";
+elseif (Final Score >= 60) then (yes)
+    :Assign Grade: "C";
+    :Posture Description = "Moderate Risk - Security Hardening Needed";
+elseif (Final Score >= 50) then (yes)
+    :Assign Grade: "D";
+    :Posture Description = "High Risk - Multiple Security Gaps";
+else (no)
+    :Assign Grade: "F";
+    :Posture Description = "Critical Risk - Immediate Remediation Required";
+endif
+
+:Generate Remediation Directives:
+- Nginx server block headers & TLS directives
+- Apache .htaccess / httpd.conf directives
+- Django SECURE_* settings in settings.py;
+
+:Package Score, Grade, Description, and Remediation Code;
+:Forward Data to Storage & Audit Pipeline (FR 1.5);
+stop
+@enduml
+
+
+' ==============================================================================
+' FR-MAN-1.5: Secure Storage of Scan Requests, Results & Audit Logging
+' ==============================================================================
+@startuml fr_1_5_secure_storage_audit
+skinparam ActivityFontSize 12
+skinparam ActivityBackgroundColor #F8F9FA
+skinparam ActivityBorderColor #744210
+skinparam ArrowColor #744210
+
+title FR-MAN-1.5: Secure Storage of Scan Requests, Results & Audit Logging
+
+start
+:Receive Processed Security Report Payload;
+:Open Database Connection & Begin Transaction;
+
+:Serialize Scan Findings, Checks, and Remediation into JSON;
+
+:Execute SQL UPDATE on "scans" Table:
+- SET status = 'COMPLETED'
+- SET score = calculated_score
+- SET letter_grade = assigned_grade
+- SET completed_at = CURRENT_TIMESTAMP
+- SET result_data = serialized_json
+WHERE id = current_scan_id;
+
+if (Update Query Successful?) then (yes)
+    :Capture Audit Context:
+    - User ID (from JWT sub claim)
+    - Client IP Address
+    - Action = 'WEBSITE_BASIC_SCAN_COMPLETED'
+    - Target Asset = target_url
+    - Timestamp = CURRENT_TIMESTAMP;
+    
+    :Execute SQL INSERT on "audit_logs" Table with Audit Context;
+    
+    if (Audit Insert Successful?) then (yes)
+        :Commit Database Transaction;
+        :Build Response JSON:
+        - scan_id, target_url, score, grade
+        - checks_passed, findings_list, remediation
+        - generated_at;
+        :Send HTTP 200 OK Response to Client;
+        stop
+    else (no)
+        :Rollback Database Transaction;
+        :Log Internal Error (Audit Insertion Failure);
+        :Return 500 Internal Server Error;
+        stop
+    endif
+else (no)
+    :Rollback Database Transaction;
+    :Log Internal Error (Scan Record Update Failure);
+    :Return 500 Internal Server Error;
+    stop
+endif
+@enduml

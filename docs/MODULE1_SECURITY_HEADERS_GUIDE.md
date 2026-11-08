@@ -90,3 +90,4 @@ Automated test coverage is provided via Django's test runner:
 python backend/manage.py test scanner_api
 ```
 All 7 unit and integration test assertions pass with zero failures.
+

@@ -4,16 +4,16 @@
 **Active Project Scope**: Full Module 1 Implementation (Website Submission, Basic Security Report & User Management)
 
 ## Group Members & Project Roles
-| Student ID | Member Name | Role & Engineering Contribution |
+| Student ID | Member Name | Role & Functional Responsibility |
 | :--- | :--- | :--- |
-| **232-35-332** | **MD. ABU NAYEM** | Security Architecture & Access Control (Authentication, URL Validation, TLS & Redirect Audits) |
-| **232-35-457** | **OVIJEET SAHA** | Web Configuration Auditing & Remediation (Header Analysis, Cookie Audits, Scoring & Fix Snippets) |
-| **232-35-422** | **ATIYA KHANM LUCKY** | Engagement Conversion, History & Audit (Assessment Requests, Scan History, Audit Trails, RBAC Switching) |
+| **232-35-332** | **MD. ABU NAYEM** | User Access, URL Submission & Transport Encryption Verification |
+| **232-35-457** | **OVIJEET SAHA** | Security Headers Audit, Vulnerability Scoring & Remediation Guides |
+| **232-35-422** | **ATIYA KHANM LUCKY** | Assessment Conversion, Scan History, Audit Trails & Persona Switching |
 
 ---
 
 ## 1. Project Overview
-CyberShield is a web-based security assessment and risk management platform that provides organizations with an initial automated security check and a structured process for web application security analysis. Authorized users can submit a website URL and receive a Basic Security Report covering HTTPS transport encryption, SSL/TLS certificate chain verification, 6 core security headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy), cookie security attributes, and server technology exposure, along with a deterministic security score (0–100), letter grade badge (A+ to F), findings, severity levels, and tailored remediation snippets for Nginx, Apache, and Django.
+CyberShield is a web-based security assessment and risk management platform designed to help organizations easily evaluate and improve their website security posture. Users can submit any website address and immediately receive a clear, actionable Basic Security Report. The report evaluates HTTPS encryption, SSL certificate health, core web security headers, cookie safety attributes, and information exposure risks. It calculates an intuitive security score (0–100) and letter grade (A+ to F), lists identified vulnerabilities with severity levels, and provides copy-ready configuration fix instructions. Organizations can also track past scans, re-test websites after applying fixes, request in-depth assessments, and monitor platform activity logs.
 
 ## 2. Project Stakeholders
 - **Customer / Organization**: Submits website URLs for automated security auditing and reviews the Basic Security Report.
@@ -41,35 +41,35 @@ Organizations frequently lack immediate visibility into common web security vuln
 
 ### Module 1: Website Submission, Basic Security Report & User Management
 
-#### MD. ABU NAYEM (232-35-332) — Security Architecture & Access Control
-- **FR-1.1: User Login** - Users can securely log into their accounts using their credentials and receive role-authorized sessions.
-- **FR-1.2: Role-Based Access Control** - Users can access features, scan actions, and data restricted according to their assigned role (*Customer, Assessor, Developer, Manager, Admin*).
-- **FR-1.3: Target Website Submission** - Users can submit any website URL for automated security auditing with immediate syntax validation.
-- **FR-1.4: Prohibited Target & SSRF Protection** - Users receive immediate rejections if attempting to scan private, internal, or loopback network addresses (`127.0.0.0/8`, `10.0.0.0/8`, `192.168.0.0/16`, `::1`).
-- **FR-1.5: SSL/TLS Certificate Inspection** - Users can view certificate chain validity, issuer details, protocol version (TLS 1.2/1.3), cipher strength, and expiration date.
-- **FR-1.6: HTTPS Redirection Verification** - Users can verify whether unencrypted HTTP traffic (port 80) automatically redirects to secure HTTPS via permanent 301/308 redirects.
+#### MD. ABU NAYEM (232-35-332)
+- **FR-1.1: User Login** - Users can securely log into their accounts using their credentials to access their security workspace.
+- **FR-1.2: Role-Based Access Control** - Users access only the specific features, reports, and actions permitted for their assigned role (*Customer, Assessor, Developer, Manager, Admin*).
+- **FR-1.3: Website URL Submission** - Users can enter and submit any website address to start an automated security check with real-time format validation.
+- **FR-1.4: Internal Network Protection** - Users receive an immediate warning and scan blockage if attempting to submit private, internal, or restricted network addresses.
+- **FR-1.5: SSL Certificate Inspection** - Users can inspect their website's SSL/TLS certificate validity, certificate authority issuer, encryption strength, and expiration date.
+- **FR-1.6: HTTPS Redirection Check** - Users can verify whether unencrypted website traffic automatically redirects visitors to a secure, encrypted HTTPS connection.
 
-#### OVIJEET SAHA (232-35-457) — Web Configuration Auditing & Remediation
-- **FR-1.7: Security Headers Analysis** - Users can inspect whether the target website enforces core security headers (`HSTS`, `CSP`, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`).
-- **FR-1.8: Cookie Security Verification** - Users can examine whether session cookies implement `Secure`, `HttpOnly`, and `SameSite` protection flags.
-- **FR-1.9: Information Exposure Detection** - Users can detect exposed server technology banners (`Server`) and framework version leaks (`X-Powered-By`) in HTTP response headers.
-- **FR-1.10: Security Scoring & Grading** - Users receive an overall numeric score (0–100) and letter grade (*A+, A, B, C, D, F*) based on severity-weighted vulnerability deductions.
-- **FR-1.11: Severity-Categorized Findings View** - Users can filter and review detected security issues categorized by Critical, High, Medium, Low, and Informational severity levels.
-- **FR-1.12: Tailored Remediation Snippets** - Users can view and copy ready-to-deploy configuration fix snippets tailored for **Nginx**, **Apache**, and **Django** to remediate failed checks.
+#### OVIJEET SAHA (232-35-457)
+- **FR-1.7: Security Headers Audit** - Users can inspect whether essential website security headers (such as clickjacking and content protection) are properly configured.
+- **FR-1.8: Cookie Security Check** - Users can verify whether website cookies have essential security flags enabled to prevent unauthorized interception and session theft.
+- **FR-1.9: Information Leak Detection** - Users can identify exposed server technology versions and system banners that reveal internal infrastructure details.
+- **FR-1.10: Security Score & Grade** - Users receive an overall security score from 0 to 100 and a letter grade (*A+, A, B, C, D, F*) summarizing their website's security health.
+- **FR-1.11: Vulnerability Findings View** - Users can review and filter detected security vulnerabilities categorized by severity levels (Critical, High, Medium, Low).
+- **FR-1.12: Remediation Fix Guide** - Users can view and copy ready-to-use configuration fix snippets for popular web servers to resolve detected security issues.
 
-#### ATIYA KHANM LUCKY (232-35-422) — Engagement Conversion, History & Audit Operations
-- **FR-1.13: Full Assessment Request** - Customers can submit a formal full security assessment request directly from their scan results with target scope and compliance standards.
-- **FR-1.14: Scan History Tracking** - Users can browse a comprehensive historical log of all previous website scans, including scores, letter grades, timestamps, and status summaries.
-- **FR-1.15: Target Re-Scanning** - Users can trigger a one-click re-scan of any previously analyzed website to verify remediation progress and score improvements.
-- **FR-1.16: User Profile & Session Inspection** - Users can view their profile information, organization association, active session validity, and assigned permissions.
-- **FR-1.17: Security Audit Log Review** - Authorized managers and administrators can search, filter, and inspect tamper-evident audit logs of all scan operations and system events.
-- **FR-1.18: Stakeholder Role Switching** - Users can switch between system stakeholder personas (*Customer, Assessor, Developer, Manager, Admin*) to experience role-specific platform capabilities and views.
+#### ATIYA KHANM LUCKY (232-35-422)
+- **FR-1.13: Full Assessment Request** - Customers can submit an in-depth security assessment request directly from their scan results with custom scope and compliance goals.
+- **FR-1.14: Scan History Log** - Users can view and search a history of all past website scans, including past scores, grades, dates, and previous results.
+- **FR-1.15: One-Click Re-Scan** - Users can quickly re-scan any previously analyzed website with one click to verify if applied fixes improved their score.
+- **FR-1.16: User Profile View** - Users can view their personal account details, organization info, active session status, and assigned permissions.
+- **FR-1.17: Activity Audit Trail** - Administrators and managers can review a searchable log of all user activities, scan operations, and platform events.
+- **FR-1.18: Role Persona Switcher** - Users can switch between different stakeholder roles to preview role-specific dashboards, features, and permissions.
 
 ---
 
 ## 6. Non-Functional Requirements
-1. **Security**: Secure password hashing (bcrypt/PBKDF2), authorization checks, RBAC, access-controlled endpoints, and tamper-evident audit logging.
-2. **Safety & Ethics**: Automated scans are strictly passive and non-destructive; private/internal IP ranges are blocked by default.
-3. **Performance**: Concurrent asynchronous HTTP check probes returning complete reports in under 3 seconds.
-4. **Reliability**: Robust error handling, DNS validation, schema enforcement, and zero data corruption.
-5. **Maintainability**: Modular architecture, clear REST API contracts, clean TypeScript types, and Git version control.
+1. **Security**: Secure password hashing, authorization checks, role permissions, and tamper-evident activity logging.
+2. **Safety**: Automated scans are strictly passive and non-destructive; private and internal networks are blocked by default.
+3. **Performance**: Fast automated checks providing completed security reports within seconds.
+4. **Reliability**: Graceful error handling, input validation, and continuous data consistency.
+5. **Usability**: Clean, responsive web interface accessible across desktop and mobile browsers.

@@ -59,10 +59,10 @@ export const TeamModal: React.FC<TeamModalProps> = ({ onClose }) => {
                   <span className="font-mono badge badge-info" style={{ fontSize: '0.7rem' }}>ID: 232-35-332</span>
                 </div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--cyan-primary)', fontWeight: 600, marginTop: '0.15rem' }}>
-                  Security Architecture & Access Control Lead (FR-1.1 – FR-1.6)
+                  User Access, URL Submission & Transport Encryption (FR-1.1 – FR-1.6)
                 </div>
                 <p style={{ fontSize: '0.775rem', color: '#94a3b8', marginTop: '0.35rem', lineHeight: 1.4 }}>
-                  User Login, Role-Based Access Control policies, Target Website URL Submission, SSRF private IP protection, TLS/SSL certificate chain inspections, and HTTPS redirection audits.
+                  User Login, Role-Based Access Control, Website URL Submission, Restricted URL Protection, SSL Certificate Inspection, and HTTPS Redirection Check.
                 </p>
               </div>
             </div>
@@ -78,10 +78,10 @@ export const TeamModal: React.FC<TeamModalProps> = ({ onClose }) => {
                   <span className="font-mono badge badge-info" style={{ fontSize: '0.7rem' }}>ID: 232-35-457</span>
                 </div>
                 <div style={{ fontSize: '0.8rem', color: '#60a5fa', fontWeight: 600, marginTop: '0.15rem' }}>
-                  Web Configuration Auditing & Remediation Lead (FR-1.7 – FR-1.12)
+                  Security Headers, Vulnerability Scoring & Remediation Guides (FR-1.7 – FR-1.12)
                 </div>
                 <p style={{ fontSize: '0.775rem', color: '#94a3b8', marginTop: '0.35rem', lineHeight: 1.4 }}>
-                  Core security headers analysis (HSTS, CSP, XFO, XCTO, RP, PP), cookie security flags verification, information exposure & banner leak detection, scoring formulas, severity findings display, and tailored Nginx/Apache/Django remediation snippets.
+                  Security Headers Audit, Cookie Security Check, Information Leak Detection, Security Score & Grade, Vulnerability Findings View, and Remediation Fix Guide.
                 </p>
               </div>
             </div>
@@ -97,10 +97,10 @@ export const TeamModal: React.FC<TeamModalProps> = ({ onClose }) => {
                   <span className="font-mono badge badge-info" style={{ fontSize: '0.7rem' }}>ID: 232-35-422</span>
                 </div>
                 <div style={{ fontSize: '0.8rem', color: '#34d399', fontWeight: 600, marginTop: '0.15rem' }}>
-                  Engagement Conversion, History & Audit Operations Lead (FR-1.13 – FR-1.18)
+                  Assessment Requests, History & Audit Operations (FR-1.13 – FR-1.18)
                 </div>
                 <p style={{ fontSize: '0.775rem', color: '#94a3b8', marginTop: '0.35rem', lineHeight: 1.4 }}>
-                  Full security assessment request conversion workflow, scan history tracking with score metrics, target re-scanning operations, user profile & session inspection, security audit trail review, and live stakeholder role switching.
+                  Full Assessment Request, Scan History Log, One-Click Re-Scan, User Profile View, Activity Audit Trail, and Role Persona Switcher.
                 </p>
               </div>
             </div>

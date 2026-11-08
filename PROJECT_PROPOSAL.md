@@ -1,7 +1,7 @@
 # CyberShield - Web Application Security Assessment & Risk Management Platform
 **Course**: SE331 | **Lab Section**: 41_B2 | **Semester**: Fall 2026  
 **Group No**: Group 02 | **Submission Date**: 05-10-2026  
-**Active Project Scope**: Full Module 1 Implementation (Website Submission, Basic Security Report & User Management)
+**Active Project Scope**: Comprehensive 3-Module Specification (Active Laboratory Implementation: Module 1)
 
 ## Group Members & Project Roles
 | Student ID | Member Name | Role & Functional Responsibility |
@@ -13,24 +13,27 @@
 ---
 
 ## 1. Project Overview
-CyberShield is a web-based security assessment and risk management platform designed to help organizations easily evaluate and improve their website security posture. Users can submit any website address and immediately receive a clear, actionable Basic Security Report. The report evaluates HTTPS encryption, SSL certificate health, core web security headers, cookie safety attributes, and information exposure risks. It calculates an intuitive security score (0–100) and letter grade (A+ to F), lists identified vulnerabilities with severity levels, and provides copy-ready configuration fix instructions. Organizations can also track past scans, re-test websites after applying fixes, request in-depth assessments, and monitor platform activity logs.
+CyberShield is a comprehensive web-based security assessment and risk management platform designed to help organizations easily evaluate, manage, and improve their web application security posture. The platform delivers a structured three-module workflow:
+- **Module 1**: Automated Basic Security Report covering HTTPS encryption, SSL certificate health, core web security headers, cookie safety attributes, and server information exposure.
+- **Module 2**: In-depth security assessments using standard checklists, vulnerability lifecycle tracking, 5×5 risk scoring, developer remediation evidence submission, and assessor retesting verification.
+- **Module 3**: Executive KPI dashboards, interactive visual risk heatmaps, vulnerability distribution charts, tamper-evident audit trails, and exportable executive PDF reports.
 
 ## 2. Project Stakeholders
-- **Customer / Organization**: Submits website URLs for automated security auditing and reviews the Basic Security Report.
-- **Security Administrator**: Governs role-based access control, configures security check thresholds, and inspects tamper-evident audit logs.
-- **Security Assessor / Analyst**: Analyzes header configurations, verifies cryptographic standards, and monitors audit records.
-- **Remediation Developer**: Reviews detected misconfigurations and applies tailored server configuration patches for Nginx, Apache, and Django.
-- **Security Manager**: Reviews organization-wide security scores, letter grades, and posture trends across digital assets.
+- **Customer / Organization**: Submits website URLs for automated security auditing, reviews reports, and requests in-depth assessments.
+- **Security Administrator**: Governs role-based access control, user accounts, system configuration, and inspects tamper-evident audit logs.
+- **Security Assessor / Analyst**: Performs comprehensive assessments using standard checklists, logs vulnerabilities, calculates risk, and verifies developer fixes.
+- **Remediation Developer**: Reviews detected misconfigurations and vulnerabilities, applies configuration and code fixes, and submits remediation evidence.
+- **Security Manager**: Monitors organization-wide security scores, vulnerability distributions, remediation MTTR metrics, and approves assessment pipelines.
 
 ## 3. Business Need
-Organizations frequently lack immediate visibility into common web security vulnerabilities and configuration weaknesses. CyberShield provides a safe, passive, non-destructive automated security check that rapidly surfaces misconfigurations, missing transport encryptions, and information leaks without impacting server availability. All checks align with OWASP Top 10:2021 and NIST CSF 2.0 security principles.
+Organizations frequently lack immediate visibility into common web application vulnerabilities and configuration weaknesses. CyberShield replaces fragmented spreadsheets, emails, and disconnected tools with a unified platform that combines immediate passive security checks, structured penetration test tracking, and executive risk governance. The platform aligns with industry-recognized frameworks including OWASP Top 10:2021 and NIST CSF 2.0.
 
 ## 4. Technology Stack
 - **Language**: Python 3, TypeScript / JavaScript
 - **Backend Framework**: Django REST Framework (DRF) 3.18
 - **Frontend Framework**: React 19 / Vite
 - **Styling**: Vanilla CSS & Modern Dark-Mode Palette
-- **Database & ORM**: PostgreSQL / Django ORM (SQLite in local dev)
+- **Database & ORM**: PostgreSQL / Django ORM (SQLite in local development)
 - **API & Authentication**: RESTful API with HMAC-SHA256 Signed JWT Tokens
 - **Iconography**: Lucide React Vector Icons (Zero Emojis, Zero AI Pictures)
 - **Version Control**: Git & GitHub
@@ -38,6 +41,8 @@ Organizations frequently lack immediate visibility into common web security vuln
 ---
 
 ## 5. Functional Requirements Specification
+
+All functional requirements describe direct user-end capabilities ("what users can do with the system") and are evenly distributed across the 3 group members (6 requirements per member in each module):
 
 ### Module 1: Website Submission, Basic Security Report & User Management
 
@@ -67,9 +72,65 @@ Organizations frequently lack immediate visibility into common web security vuln
 
 ---
 
+### Module 2: Full Security Assessment, Findings, Risk & Remediation Management
+
+#### MD. ABU NAYEM (232-35-332)
+- **FR-2.1: Assessment Setup** - Assessors can create, configure, and schedule in-depth web application security assessment projects with custom scope.
+- **FR-2.2: Standard Security Checklist** - Assessors can evaluate applications against comprehensive industry security checklists covering the top web vulnerability categories.
+- **FR-2.3: Finding Creation** - Assessors can log identified vulnerabilities with detailed titles, descriptions, affected endpoints, and evidence steps.
+- **FR-2.4: Risk Level Calculation** - Users can assign likelihood and impact ratings to automatically determine the overall risk score and severity level of a vulnerability.
+- **FR-2.5: Finding Status Tracking** - Users can track and update the lifecycle state of each vulnerability from open discovery through fix verification and closure.
+- **FR-2.6: Assessment Scope Definition** - Managers and assessors can define specific testing boundaries, excluded paths, and authorized domain assets for an assessment.
+
+#### OVIJEET SAHA (232-35-457)
+- **FR-2.7: Interactive Audit Checklist Console** - Assessors can navigate an interactive checklist interface to record pass, fail, or not-applicable verdicts with real-time audit progress.
+- **FR-2.8: Vulnerability Search & Filter** - Users can quickly search, filter, and sort detected issues by severity, status, affected module, and discovery date.
+- **FR-2.9: Remediation Evidence Submission** - Developers can submit fix explanations, patch notes, configuration changes, and code pull request links for resolved issues.
+- **FR-2.10: Retest Verification Request** - Developers can request formal re-testing from security assessors once remediation fixes have been applied.
+- **FR-2.11: Assessor Verification Verdict** - Assessors can review submitted evidence, perform verification re-tests, and mark vulnerabilities as resolved or reopened.
+- **FR-2.12: Vulnerability Impact Details View** - Users can view detailed business impact analyses and technical exploitation explanations for each reported issue.
+
+#### ATIYA KHANM LUCKY (232-35-422)
+- **FR-2.13: Assessment Progress Monitoring** - Managers and customers can monitor overall assessment completion percentage, pending checks, and milestone progress.
+- **FR-2.14: Remediation Task Assignment** - Managers can assign specific vulnerability remediation tasks to responsible developer team members with target deadlines.
+- **FR-2.15: Retest History & Notes Log** - Users can view a complete chronological record of all retest attempts, assessor feedback notes, and verification outcomes.
+- **FR-2.16: Finding Discussion & Collaboration** - Assessors and developers can exchange comments and clarification questions directly within individual vulnerability records.
+- **FR-2.17: Overdue Remediation Alerts** - Managers and developers receive visual indicators and reminders for unresolved critical and high-severity issues past their target resolution window.
+- **FR-2.18: Assessment Archival & Closure** - Authorized managers can formally finalize, sign off, and archive completed assessment projects once all verification checks conclude.
+
+---
+
+### Module 3: Dashboard, Reporting, Audit & Customer Conversion
+
+#### MD. ABU NAYEM (232-35-332)
+- **FR-3.1: Executive Security Dashboard** - Managers and executives can view an aggregated high-level overview of organization security posture, average scores, and open risks.
+- **FR-3.2: Resolution Time Metrics** - Users can track Mean Time to Remediate (MTTR) metrics showing how quickly teams resolve Critical, High, and Medium vulnerabilities.
+- **FR-3.3: Risk Heatmap Matrix** - Users can explore an interactive risk matrix displaying the distribution of vulnerabilities across likelihood and impact levels.
+- **FR-3.4: Asset Security Comparison** - Managers can compare security health grades and vulnerability counts across multiple company websites and web applications.
+- **FR-3.5: System Activity Audit Trail** - Administrators can search, filter, and inspect a complete activity log recording user logins, scan triggers, and configuration changes.
+- **FR-3.6: Inbound Request Notification** - Assessors and managers receive notifications whenever a customer submits a new full assessment inquiry.
+
+#### OVIJEET SAHA (232-35-457)
+- **FR-3.7: Vulnerability Category Charts** - Users can view visual bar and donut charts illustrating vulnerability distributions across security categories and severity rankings.
+- **FR-3.8: Interactive Heatmap Filtering** - Users can click any cell within the risk heatmap to instantly filter and view all vulnerabilities matching that specific risk level.
+- **FR-3.9: Assessment Inquiries Kanban Pipeline** - Assessors and managers can track and move incoming customer assessment inquiries through visual workflow stages (Pending, Approved, In Progress, Completed).
+- **FR-3.10: Customer Inquiry Review & Approval** - Assessors can review customer inquiry scopes, accept requests, and schedule security testing kickoff dates.
+- **FR-3.11: Remediation Progress Dashboard** - Developers and managers can monitor the proportion of resolved versus outstanding security findings in real time.
+- **FR-3.12: Security Posture Trends** - Users can view historical security posture trend charts showing score improvements over weeks and months.
+
+#### ATIYA KHANM LUCKY (232-35-422)
+- **FR-3.13: Executive PDF Report Download** - Users can generate and download a comprehensive, print-ready executive security report summarizing findings, scores, and risk distributions.
+- **FR-3.14: Technical Findings Report Export** - Developers and assessors can export detailed technical vulnerability reports containing remediation steps and verification records.
+- **FR-3.15: Audit Log Export** - Administrators can export searchable activity audit trail logs for external compliance reviews and security governance audits.
+- **FR-3.16: Stakeholder Notification Alerts** - Customers receive notifications when assessment milestones are completed, and reports become available for download.
+- **FR-3.17: Multi-Organization Dashboard View** - Security consultants can switch views between different client organizations to review their respective security portfolios.
+- **FR-3.18: Assessment Summary Sharing** - Managers can generate secure, view-only summary links or presentation-ready summaries to share with executive leadership.
+
+---
+
 ## 6. Non-Functional Requirements
 1. **Security**: Secure password hashing, authorization checks, role permissions, and tamper-evident activity logging.
 2. **Safety**: Automated scans are strictly passive and non-destructive; private and internal networks are blocked by default.
-3. **Performance**: Fast automated checks providing completed security reports within seconds.
-4. **Reliability**: Graceful error handling, input validation, and continuous data consistency.
+3. **Performance**: Fast automated checks and report generation completing operations within seconds.
+4. **Reliability**: Graceful error handling, input validation, and continuous data consistency across all assessment states.
 5. **Usability**: Clean, responsive web interface accessible across desktop and mobile browsers.

@@ -6,6 +6,9 @@ import { UserProfileView } from './components/UserProfileView';
 import { RequestModal } from './components/RequestModal';
 import { TeamModal } from './components/TeamModal';
 import { RoleLoginModal } from './components/RoleLoginModal';
+import AssessmentSetup from './components/AssessmentSetup';
+import VulnerabilitySearchFilter from './components/VulnerabilitySearchFilter';
+import AssessmentProgressMonitor from './components/AssessmentProgressMonitor';
 import { Check } from 'lucide-react';
 
 import { 
@@ -24,8 +27,9 @@ export const App: React.FC = () => {
   // Current active user persona (FR-1.1 & FR-1.2 RBAC)
   const [currentUser, setCurrentUser] = useState<UserProfile>(SYSTEM_USERS[0]);
   
-  // Navigation tabs: 'scanner' | 'history' | 'profile' (Module 1 Only)
+  // Navigation tabs: 'scanner' | 'history' | 'profile' | 'assessment' | 'findings' | 'progress'
   const [activeTab, setActiveTab] = useState<string>('scanner');
+  const [activeAssessmentId, setActiveAssessmentId] = useState<string>('');
 
   // Application Data State
   const [scanHistory, setScanHistory] = useState<BasicScanResult[]>([
@@ -159,7 +163,7 @@ export const App: React.FC = () => {
         onOpenLoginModal={() => setIsLoginModalOpen(true)}
       />
 
-      {/* Active Tab View (Module 1 Scope Only) */}
+      {/* Active Tab View */}
       <main style={{ flex: 1, paddingBottom: '3rem' }}>
         {activeTab === 'scanner' && (
           <BasicScanner
@@ -186,6 +190,22 @@ export const App: React.FC = () => {
             currentUser={currentUser}
             onSwitchUser={setCurrentUser}
             onOpenLoginModal={() => setIsLoginModalOpen(true)}
+          />
+        )}
+
+        {/* Module 2 Tabs */}
+        {activeTab === 'assessment' && (
+          <AssessmentSetup />
+        )}
+
+        {activeTab === 'findings' && (
+          <VulnerabilitySearchFilter />
+        )}
+
+        {activeTab === 'progress' && (
+          <AssessmentProgressMonitor
+            assessmentId={activeAssessmentId}
+            userRole={currentUser.role}
           />
         )}
       </main>

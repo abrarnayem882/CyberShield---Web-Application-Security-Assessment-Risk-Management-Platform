@@ -6,32 +6,33 @@ import { UserProfileView } from './components/UserProfileView';
 import { RequestModal } from './components/RequestModal';
 import { TeamModal } from './components/TeamModal';
 import { RoleLoginModal } from './components/RoleLoginModal';
+// Module 2 — MD. ABU NAYEM (FR-2.1 to FR-2.6)
 import AssessmentSetup from './components/AssessmentSetup';
+// Module 2 — OVIJEET SAHA (FR-2.7 to FR-2.12)
 import VulnerabilitySearchFilter from './components/VulnerabilitySearchFilter';
+import ChecklistAuditConsole from './components/ChecklistAuditConsole';
+// Module 2 — ATIYA KHANM LUCKY (FR-2.13 to FR-2.18)
 import AssessmentProgressMonitor from './components/AssessmentProgressMonitor';
+import CustomerAssessmentView from './components/CustomerAssessmentView';
 import { Check } from 'lucide-react';
 
-import { 
-  UserProfile, 
-  AuditLog, 
-  BasicScanResult, 
-  AssessmentRequest 
+import {
+  UserProfile,
+  AuditLog,
+  BasicScanResult,
+  AssessmentRequest
 } from './types';
-import { 
-  SYSTEM_USERS, 
-  INITIAL_AUDIT_LOGS, 
-  PRESET_SCANS 
+import {
+  SYSTEM_USERS,
+  INITIAL_AUDIT_LOGS,
+  PRESET_SCANS
 } from './data/mockData';
 
 export const App: React.FC = () => {
-  // Current active user persona (FR-1.1 & FR-1.2 RBAC)
   const [currentUser, setCurrentUser] = useState<UserProfile>(SYSTEM_USERS[0]);
-  
-  // Navigation tabs: 'scanner' | 'history' | 'profile' | 'assessment' | 'findings' | 'progress'
   const [activeTab, setActiveTab] = useState<string>('scanner');
-  const [activeAssessmentId, setActiveAssessmentId] = useState<string>('');
+  const [activeAssessmentId] = useState<string>('');
 
-  // Application Data State
   const [scanHistory, setScanHistory] = useState<BasicScanResult[]>([
     PRESET_SCANS['https://apexbank-secure.io'],
     PRESET_SCANS['https://globalmart-retail.com'],
@@ -40,27 +41,28 @@ export const App: React.FC = () => {
   const [selectedScanForReport, setSelectedScanForReport] = useState<BasicScanResult | null>(null);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(INITIAL_AUDIT_LOGS);
 
-  // Modals state
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [requestModalInitialUrl, setRequestModalInitialUrl] = useState('');
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-
-  // Toast notification
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const isCustomer = currentUser.role === 'customer';
+  const isStaff = ['admin', 'assessor', 'manager', 'developer'].includes(currentUser.role);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const handleLoginSuccess = (user: UserProfile, token?: string) => {
+  const handleLoginSuccess = (user: UserProfile) => {
     setCurrentUser(user);
-    logAuditEvent(
-      'USER_LOGIN_SUCCESS',
-      'http://localhost:8000/api/auth/login',
-      `Authenticated as ${user.name} (${user.role.toUpperCase()}) for ${user.organization}. JWT session active.`
-    );
+    // Reset to appropriate default tab for role
+    if (user.role === 'customer') {
+      setActiveTab('scanner');
+    }
+    logAuditEvent('USER_LOGIN_SUCCESS', 'http://localhost:8000/api/auth/login',
+      `Authenticated as ${user.name} (${user.role.toUpperCase()}) for ${user.organization}.`);
     showToast(`Welcome, ${user.name}! Switched to ${user.role.toUpperCase()} role.`);
   };
 
@@ -70,45 +72,33 @@ export const App: React.FC = () => {
       timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
       user: currentUser.name,
       role: currentUser.role,
-      action,
-      target,
-      details,
+      action, target, details,
       ipAddress: '192.168.10.45'
     };
     setAuditLogs(prev => [newLog, ...prev]);
   };
 
-  // Handler: Scan Completed (FR-1.7 & FR-1.12)
   const handleScanCompleted = (result: BasicScanResult) => {
     setScanHistory(prev => {
       const exists = prev.find(s => s.url === result.url);
-      if (exists) {
-        return prev.map(s => s.url === result.url ? result : s);
-      }
-      return [result, ...prev];
+      return exists ? prev.map(s => s.url === result.url ? result : s) : [result, ...prev];
     });
-
-    logAuditEvent(
-      'BASIC_SCAN_EXECUTED',
-      result.url,
-      `Safe automated security audit executed. Computed score: ${result.score} (Grade ${result.grade}).`
-    );
-    showToast(`Security scan completed for ${result.hostname}! Score: ${result.score}`);
+    logAuditEvent('BASIC_SCAN_EXECUTED', result.url,
+      `Automated security audit executed. Score: ${result.score} (Grade ${result.grade}).`);
+    showToast(`Scan complete for ${result.hostname}! Score: ${result.score}`);
   };
 
-  // Handler: Select Scan from History
   const handleSelectScan = (scan: BasicScanResult) => {
     setSelectedScanForReport(scan);
     setActiveTab('scanner');
   };
 
-  // Handler: Re-Scan Target
   const handleReScan = (url: string) => {
     setSelectedScanForReport(null);
     setActiveTab('scanner');
+    void url;
   };
 
-  // Handler: Request Full Assessment CTA (FR-1.11)
   const handleOpenRequestModal = (url: string) => {
     setRequestModalInitialUrl(url);
     setIsRequestModalOpen(true);
@@ -116,55 +106,47 @@ export const App: React.FC = () => {
 
   const handleSubmitRequest = (data: Omit<AssessmentRequest, 'id' | 'status' | 'submittedAt'>) => {
     setIsRequestModalOpen(false);
-    logAuditEvent(
-      'FULL_ASSESSMENT_REQUESTED',
-      data.targetUrl,
-      `Organization ${data.organization} submitted scope inquiry for ${data.complianceTarget}.`
-    );
-    showToast(`Full assessment request submitted for ${data.organization}! Our team will review within 24h.`);
+    logAuditEvent('FULL_ASSESSMENT_REQUESTED', data.targetUrl,
+      `${data.organization} submitted scope inquiry for ${data.complianceTarget}.`);
+    showToast(`Full assessment request submitted for ${data.organization}!`);
+  };
+
+  // RBAC guard: redirect customer away from staff-only tabs
+  const handleSetActiveTab = (tab: string) => {
+    const staffOnlyTabs = ['assessment', 'findings', 'checklist'];
+    if (isCustomer && staffOnlyTabs.includes(tab)) return;
+    setActiveTab(tab);
   };
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      
-      {/* Toast Notification Banner (No Emojis) */}
+
+      {/* Toast */}
       {toastMessage && (
-        <div 
-          className="no-print"
-          style={{
-            position: 'fixed',
-            bottom: '2rem',
-            right: '2rem',
-            background: 'linear-gradient(135deg, #06b6d4, #0284c7)',
-            color: '#ffffff',
-            padding: '0.85rem 1.25rem',
-            borderRadius: '10px',
-            boxShadow: '0 12px 30px rgba(6, 182, 212, 0.4)',
-            zIndex: 9999,
-            fontSize: '0.85rem',
-            fontWeight: 600,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.65rem'
-          }}
-        >
+        <div className="no-print" style={{
+          position: 'fixed', bottom: '2rem', right: '2rem',
+          background: 'linear-gradient(135deg, #06b6d4, #0284c7)',
+          color: '#ffffff', padding: '0.85rem 1.25rem', borderRadius: '10px',
+          boxShadow: '0 12px 30px rgba(6,182,212,0.4)', zIndex: 9999,
+          fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.65rem'
+        }}>
           <Check size={16} color="#ffffff" />
           <span>{toastMessage}</span>
         </div>
       )}
 
-      {/* Main Navigation Bar */}
       <Navbar
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleSetActiveTab}
         currentUser={currentUser}
         setCurrentUser={setCurrentUser}
         onOpenTeamInfo={() => setIsTeamModalOpen(true)}
         onOpenLoginModal={() => setIsLoginModalOpen(true)}
       />
 
-      {/* Active Tab View */}
       <main style={{ flex: 1, paddingBottom: '3rem' }}>
+
+        {/* ── Module 1 Tabs ── */}
         {activeTab === 'scanner' && (
           <BasicScanner
             currentUser={currentUser}
@@ -173,7 +155,6 @@ export const App: React.FC = () => {
             selectedScan={selectedScanForReport}
           />
         )}
-
         {activeTab === 'history' && (
           <ScanHistory
             currentUser={currentUser}
@@ -184,7 +165,6 @@ export const App: React.FC = () => {
             onOpenLoginModal={() => setIsLoginModalOpen(true)}
           />
         )}
-
         {activeTab === 'profile' && (
           <UserProfileView
             currentUser={currentUser}
@@ -193,29 +173,47 @@ export const App: React.FC = () => {
           />
         )}
 
-        {/* Module 2 Tabs */}
-        {activeTab === 'assessment' && (
-          <AssessmentSetup />
+        {/* ── Module 2: CUSTOMER view ── */}
+        {isCustomer && activeTab === 'my-requests' && (
+          <CustomerAssessmentView customerOrg={currentUser.organization} />
         )}
-
-        {activeTab === 'findings' && (
-          <VulnerabilitySearchFilter />
-        )}
-
-        {activeTab === 'progress' && (
+        {isCustomer && activeTab === 'progress' && (
           <AssessmentProgressMonitor
             assessmentId={activeAssessmentId}
             userRole={currentUser.role}
           />
         )}
+
+        {/* ── Module 2: STAFF view ── */}
+        {isStaff && activeTab === 'assessment' && (
+          <AssessmentSetup />
+        )}
+        {isStaff && activeTab === 'findings' && (
+          <VulnerabilitySearchFilter />
+        )}
+        {isStaff && activeTab === 'progress' && (
+          <AssessmentProgressMonitor
+            assessmentId={activeAssessmentId}
+            userRole={currentUser.role}
+          />
+        )}
+        {isStaff && activeTab === 'checklist' && (
+          <ChecklistAuditConsole assessmentId={activeAssessmentId} />
+        )}
+
+        {/* RBAC blocked message */}
+        {isCustomer && ['assessment', 'findings', 'checklist'].includes(activeTab) && (
+          <div style={{ textAlign: 'center', padding: '60px 24px', color: '#6b7280' }}>
+            <div style={{ fontSize: '48px', marginBottom: '12px' }}>🔒</div>
+            <div style={{ fontSize: '18px', fontWeight: 600, color: '#f9fafb', marginBottom: '8px' }}>Access Restricted</div>
+            <div style={{ fontSize: '14px' }}>This section is only available to Security Assessors, Managers and Administrators.</div>
+          </div>
+        )}
       </main>
 
-      {/* Footer */}
-      <footer className="no-print" style={{ borderTop: '1px solid var(--border-subtle)', background: 'rgba(9, 13, 22, 0.95)', padding: '1.25rem 1.5rem', marginTop: 'auto', fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+      <footer className="no-print" style={{ borderTop: '1px solid var(--border-subtle)', background: 'rgba(9,13,22,0.95)', padding: '1.25rem 1.5rem', marginTop: 'auto', fontSize: '0.75rem', color: 'var(--text-dim)' }}>
         <div style={{ maxWidth: '1440px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
-          <div>
-            <strong style={{ color: '#cbd5e1' }}>CyberShield Platform</strong> • SE331 SecOps Lab Section 41_B2 (Fall 2026)
-          </div>
+          <div><strong style={{ color: '#cbd5e1' }}>CyberShield Platform</strong> • SE331 SecOps Lab Section 41_B2 (Fall 2026)</div>
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <span>MD. Abu Nayem (232-35-332)</span>
             <span>•</span>
@@ -226,7 +224,6 @@ export const App: React.FC = () => {
         </div>
       </footer>
 
-      {/* Modals */}
       {isRequestModalOpen && (
         <RequestModal
           initialUrl={requestModalInitialUrl}
@@ -234,19 +231,13 @@ export const App: React.FC = () => {
           onSubmit={handleSubmitRequest}
         />
       )}
-
-      {isTeamModalOpen && (
-        <TeamModal onClose={() => setIsTeamModalOpen(false)} />
-      )}
-
-      {/* Role-Based Authentication & Switcher Modal (FR-1.1 & FR-1.2) */}
+      {isTeamModalOpen && <TeamModal onClose={() => setIsTeamModalOpen(false)} />}
       <RoleLoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
         currentUser={currentUser}
         onLoginSuccess={handleLoginSuccess}
       />
-
     </div>
   );
 };

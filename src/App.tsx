@@ -16,22 +16,16 @@ import AssessmentProgressMonitor from './components/AssessmentProgressMonitor';
 import CustomerAssessmentView from './components/CustomerAssessmentView';
 import { Check } from 'lucide-react';
 
-import {
-  UserProfile,
-  AuditLog,
-  BasicScanResult,
-  AssessmentRequest
-} from './types';
-import {
-  SYSTEM_USERS,
-  INITIAL_AUDIT_LOGS,
-  PRESET_SCANS
-} from './data/mockData';
+import { UserProfile, AuditLog, BasicScanResult, AssessmentRequest } from './types';
+import { SYSTEM_USERS, INITIAL_AUDIT_LOGS, PRESET_SCANS } from './data/mockData';
+
+// Default GlobalMart assessment from seed data
+const DEFAULT_ASSESSMENT_ID = '00a7be56-55e9-4c46-b1b6-4f3c8a034e0d';
 
 export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<UserProfile>(SYSTEM_USERS[0]);
   const [activeTab, setActiveTab] = useState<string>('scanner');
-  const [activeAssessmentId] = useState<string>('');
+  const [selectedAssessmentId, setSelectedAssessmentId] = useState<string>(DEFAULT_ASSESSMENT_ID);
 
   const [scanHistory, setScanHistory] = useState<BasicScanResult[]>([
     PRESET_SCANS['https://apexbank-secure.io'],
@@ -57,12 +51,8 @@ export const App: React.FC = () => {
 
   const handleLoginSuccess = (user: UserProfile) => {
     setCurrentUser(user);
-    // Reset to appropriate default tab for role
-    if (user.role === 'customer') {
-      setActiveTab('scanner');
-    }
     logAuditEvent('USER_LOGIN_SUCCESS', 'http://localhost:8000/api/auth/login',
-      `Authenticated as ${user.name} (${user.role.toUpperCase()}) for ${user.organization}.`);
+      `Authenticated as ${user.name} (${user.role.toUpperCase()}).`);
     showToast(`Welcome, ${user.name}! Switched to ${user.role.toUpperCase()} role.`);
   };
 
@@ -70,10 +60,8 @@ export const App: React.FC = () => {
     const newLog: AuditLog = {
       id: `LOG-${Date.now().toString().slice(-4)}`,
       timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
-      user: currentUser.name,
-      role: currentUser.role,
-      action, target, details,
-      ipAddress: '192.168.10.45'
+      user: currentUser.name, role: currentUser.role,
+      action, target, details, ipAddress: '192.168.10.45'
     };
     setAuditLogs(prev => [newLog, ...prev]);
   };
@@ -111,7 +99,7 @@ export const App: React.FC = () => {
     showToast(`Full assessment request submitted for ${data.organization}!`);
   };
 
-  // RBAC guard: redirect customer away from staff-only tabs
+  // RBAC guard — customer cannot access staff-only tabs
   const handleSetActiveTab = (tab: string) => {
     const staffOnlyTabs = ['assessment', 'findings', 'checklist'];
     if (isCustomer && staffOnlyTabs.includes(tab)) return;
@@ -126,11 +114,11 @@ export const App: React.FC = () => {
         <div className="no-print" style={{
           position: 'fixed', bottom: '2rem', right: '2rem',
           background: 'linear-gradient(135deg, #06b6d4, #0284c7)',
-          color: '#ffffff', padding: '0.85rem 1.25rem', borderRadius: '10px',
+          color: '#fff', padding: '0.85rem 1.25rem', borderRadius: '10px',
           boxShadow: '0 12px 30px rgba(6,182,212,0.4)', zIndex: 9999,
           fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.65rem'
         }}>
-          <Check size={16} color="#ffffff" />
+          <Check size={16} color="#fff" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -146,98 +134,64 @@ export const App: React.FC = () => {
 
       <main style={{ flex: 1, paddingBottom: '3rem' }}>
 
-        {/* ── Module 1 Tabs ── */}
+        {/* Module 1 Tabs */}
         {activeTab === 'scanner' && (
-          <BasicScanner
-            currentUser={currentUser}
-            onRequestFullAssessment={handleOpenRequestModal}
-            onScanCompleted={handleScanCompleted}
-            selectedScan={selectedScanForReport}
-          />
+          <BasicScanner currentUser={currentUser} onRequestFullAssessment={handleOpenRequestModal}
+            onScanCompleted={handleScanCompleted} selectedScan={selectedScanForReport} />
         )}
         {activeTab === 'history' && (
-          <ScanHistory
-            currentUser={currentUser}
-            scanHistory={scanHistory}
-            auditLogs={auditLogs}
-            onSelectScan={handleSelectScan}
-            onReScan={handleReScan}
-            onOpenLoginModal={() => setIsLoginModalOpen(true)}
-          />
+          <ScanHistory currentUser={currentUser} scanHistory={scanHistory} auditLogs={auditLogs}
+            onSelectScan={handleSelectScan} onReScan={handleReScan}
+            onOpenLoginModal={() => setIsLoginModalOpen(true)} />
         )}
         {activeTab === 'profile' && (
-          <UserProfileView
-            currentUser={currentUser}
-            onSwitchUser={setCurrentUser}
-            onOpenLoginModal={() => setIsLoginModalOpen(true)}
-          />
+          <UserProfileView currentUser={currentUser} onSwitchUser={setCurrentUser}
+            onOpenLoginModal={() => setIsLoginModalOpen(true)} />
         )}
 
-        {/* ── Module 2: CUSTOMER view ── */}
+        {/* Module 2: Customer-only tabs */}
         {isCustomer && activeTab === 'my-requests' && (
           <CustomerAssessmentView customerOrg={currentUser.organization} />
         )}
         {isCustomer && activeTab === 'progress' && (
-          <AssessmentProgressMonitor
-            assessmentId={activeAssessmentId}
-            userRole={currentUser.role}
-          />
+          <AssessmentProgressMonitor assessmentId={selectedAssessmentId} userRole={currentUser.role} />
         )}
 
-        {/* ── Module 2: STAFF view ── */}
+        {/* Module 2: Staff tabs */}
         {isStaff && activeTab === 'assessment' && (
-          <AssessmentSetup />
+          <AssessmentSetup
+            onSelectAssessment={(id) => { setSelectedAssessmentId(id); setActiveTab('progress'); }}
+          />
         )}
         {isStaff && activeTab === 'findings' && (
           <VulnerabilitySearchFilter />
         )}
         {isStaff && activeTab === 'progress' && (
-          <AssessmentProgressMonitor
-            assessmentId={activeAssessmentId}
-            userRole={currentUser.role}
-          />
+          <AssessmentProgressMonitor assessmentId={selectedAssessmentId} userRole={currentUser.role} />
         )}
         {isStaff && activeTab === 'checklist' && (
-          <ChecklistAuditConsole assessmentId={activeAssessmentId} />
-        )}
-
-        {/* RBAC blocked message */}
-        {isCustomer && ['assessment', 'findings', 'checklist'].includes(activeTab) && (
-          <div style={{ textAlign: 'center', padding: '60px 24px', color: '#6b7280' }}>
-            <div style={{ fontSize: '48px', marginBottom: '12px' }}>🔒</div>
-            <div style={{ fontSize: '18px', fontWeight: 600, color: '#f9fafb', marginBottom: '8px' }}>Access Restricted</div>
-            <div style={{ fontSize: '14px' }}>This section is only available to Security Assessors, Managers and Administrators.</div>
-          </div>
+          <ChecklistAuditConsole assessmentId={selectedAssessmentId} />
         )}
       </main>
 
       <footer className="no-print" style={{ borderTop: '1px solid var(--border-subtle)', background: 'rgba(9,13,22,0.95)', padding: '1.25rem 1.5rem', marginTop: 'auto', fontSize: '0.75rem', color: 'var(--text-dim)' }}>
         <div style={{ maxWidth: '1440px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div><strong style={{ color: '#cbd5e1' }}>CyberShield Platform</strong> • SE331 SecOps Lab Section 41_B2 (Fall 2026)</div>
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <span>MD. Abu Nayem (232-35-332)</span>
-            <span>•</span>
-            <span>Ovijeet Saha (232-35-457)</span>
-            <span>•</span>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            <span>MD. Abu Nayem (232-35-332)</span><span>•</span>
+            <span>Ovijeet Saha (232-35-457)</span><span>•</span>
             <span>Atiya Khanm Lucky (232-35-422)</span>
           </div>
         </div>
       </footer>
 
       {isRequestModalOpen && (
-        <RequestModal
-          initialUrl={requestModalInitialUrl}
-          onClose={() => setIsRequestModalOpen(false)}
-          onSubmit={handleSubmitRequest}
-        />
+        <RequestModal initialUrl={requestModalInitialUrl}
+          onClose={() => setIsRequestModalOpen(false)} onSubmit={handleSubmitRequest} />
       )}
       {isTeamModalOpen && <TeamModal onClose={() => setIsTeamModalOpen(false)} />}
-      <RoleLoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        currentUser={currentUser}
-        onLoginSuccess={handleLoginSuccess}
-      />
+      <RoleLoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)}
+        currentUser={currentUser} onLoginSuccess={handleLoginSuccess} />
     </div>
   );
 };

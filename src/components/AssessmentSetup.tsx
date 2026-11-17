@@ -23,7 +23,11 @@ const statusColors: Record<string, string> = {
   Archived: '#374151',
 };
 
-const AssessmentSetup: React.FC = () => {
+interface AssessmentSetupProps {
+  onSelectAssessment?: (id: string) => void;
+}
+
+const AssessmentSetup: React.FC<AssessmentSetupProps> = ({ onSelectAssessment }) => {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -206,10 +210,16 @@ const AssessmentSetup: React.FC = () => {
             Active Assessments ({assessments.length})
           </h3>
           {assessments.map(a => (
-            <div key={a.id} style={{
-              background: '#1f2937', borderRadius: '8px', padding: '16px',
-              borderLeft: `4px solid ${statusColors[a.status] || '#6b7280'}`,
-            }}>
+            <div key={a.id}
+              onClick={() => onSelectAssessment && onSelectAssessment(a.id)}
+              style={{
+                background: '#1f2937', borderRadius: '8px', padding: '16px',
+                borderLeft: `4px solid ${statusColors[a.status] || '#6b7280'}`,
+                cursor: onSelectAssessment ? 'pointer' : 'default',
+                transition: 'background 0.15s',
+              }}
+              title={onSelectAssessment ? 'Click to view progress' : ''}
+            >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px' }}>
                 <div>
                   <div style={{ fontSize: '16px', fontWeight: 600, color: '#f9fafb', marginBottom: '4px' }}>{a.title}</div>
@@ -224,6 +234,7 @@ const AssessmentSetup: React.FC = () => {
                     )}
                   </div>
                   <div style={{ fontSize: '11px', color: '#4b5563', marginTop: '4px' }}>{a.compliance_framework}</div>
+                  {onSelectAssessment && <div style={{ fontSize: '11px', color: '#7c3aed', marginTop: '4px' }}>Click to view progress and checklist</div>}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
                   <span style={{
@@ -256,3 +267,4 @@ const AssessmentSetup: React.FC = () => {
 };
 
 export default AssessmentSetup;
+

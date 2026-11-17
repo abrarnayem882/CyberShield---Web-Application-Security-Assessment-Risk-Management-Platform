@@ -293,3 +293,4 @@ const StatCard: React.FC<{ icon: React.ReactNode; label: string; value: string; 
 );
 
 export default AssessmentProgressMonitor;
+

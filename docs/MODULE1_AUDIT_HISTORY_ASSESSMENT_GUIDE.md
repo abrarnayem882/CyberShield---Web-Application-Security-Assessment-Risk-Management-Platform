@@ -85,3 +85,4 @@ All features are validated via Django automated testing:
 python backend/manage.py test scanner_api
 ```
 All 12 test assertions in `tests.py` and `test_history_and_audit.py` pass cleanly.
+

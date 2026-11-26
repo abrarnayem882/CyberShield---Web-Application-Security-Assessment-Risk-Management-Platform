@@ -47,10 +47,12 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'executive', label: 'Executive Dashboard', icon: LayoutDashboard },
     { id: 'analytics', label: 'Analytics & Charts',  icon: BarChart3 },
     { id: 'kanban',    label: 'Inquiries Kanban',   icon: Kanban },
+    { id: 'reports',   label: 'Reports & Exports',  icon: FileText },
   ];
   const module3TabsCustomer = [
     { id: 'executive', label: 'Executive Summary', icon: LayoutDashboard },
     { id: 'analytics', label: 'Risk Analytics',    icon: BarChart3 },
+    { id: 'reports',   label: 'Executive Report',  icon: FileText },
   ];
   const module3Tabs = isCustomer ? module3TabsCustomer : module3TabsStaff;
 

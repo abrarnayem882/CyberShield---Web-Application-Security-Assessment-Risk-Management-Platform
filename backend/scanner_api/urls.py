@@ -37,6 +37,13 @@ from .views import (
     AssessmentKanbanPipelineView,
     CustomerInquiryApprovalView,
     SecurityPostureTrendsView,
+    # Module 3 — ATIYA KHANM LUCKY (FR-3.13 to FR-3.18)
+    ExecutiveReportExportView,
+    TechnicalFindingsExportView,
+    AuditLogExportView,
+    StakeholderNotificationsView,
+    MultiOrganizationDashboardFilterView,
+    AssessmentSummaryShareView,
 )
 
 urlpatterns = [
@@ -112,4 +119,18 @@ urlpatterns = [
     path('inquiries/approve/', CustomerInquiryApprovalView.as_view(), name='inquiry_approve_slash'),
     path('analytics/posture-trends', SecurityPostureTrendsView.as_view(), name='posture_trends'),
     path('analytics/posture-trends/', SecurityPostureTrendsView.as_view(), name='posture_trends_slash'),
+
+    # --- Module 3: ATIYA KHANM LUCKY (FR-3.13 to FR-3.18) ---
+    path('reports/executive-summary', ExecutiveReportExportView.as_view(), name='executive_report'),
+    path('reports/executive-summary/', ExecutiveReportExportView.as_view(), name='executive_report_slash'),
+    path('reports/technical-export', TechnicalFindingsExportView.as_view(), name='technical_export'),
+    path('reports/technical-export/', TechnicalFindingsExportView.as_view(), name='technical_export_slash'),
+    path('audit/export', AuditLogExportView.as_view(), name='audit_export'),
+    path('audit/export/', AuditLogExportView.as_view(), name='audit_export_slash'),
+    path('notifications/stakeholder', StakeholderNotificationsView.as_view(), name='stakeholder_notifications'),
+    path('notifications/stakeholder/', StakeholderNotificationsView.as_view(), name='stakeholder_notifications_slash'),
+    path('dashboard/organizations', MultiOrganizationDashboardFilterView.as_view(), name='multi_org_dashboard'),
+    path('dashboard/organizations/', MultiOrganizationDashboardFilterView.as_view(), name='multi_org_dashboard_slash'),
+    path('reports/share-summary', AssessmentSummaryShareView.as_view(), name='share_summary'),
+    path('reports/share-summary/', AssessmentSummaryShareView.as_view(), name='share_summary_slash'),
 ]

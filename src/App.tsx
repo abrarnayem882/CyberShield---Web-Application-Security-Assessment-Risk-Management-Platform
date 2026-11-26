@@ -19,6 +19,8 @@ import ExecutiveDashboard from './components/ExecutiveDashboard';
 // Module 3 — OVIJEET SAHA (FR-3.7 to FR-3.12)
 import VulnerabilityAnalyticsCharts from './components/VulnerabilityAnalyticsCharts';
 import AssessmentKanbanPipeline from './components/AssessmentKanbanPipeline';
+// Module 3 — ATIYA KHANM LUCKY (FR-3.13 to FR-3.18)
+import ExecutiveReportExportCenter from './components/ExecutiveReportExportCenter';
 import { Check } from 'lucide-react';
 
 import { UserProfile, AuditLog, BasicScanResult, AssessmentRequest } from './types';
@@ -196,6 +198,11 @@ export const App: React.FC = () => {
         {/* Module 3: Inquiries Kanban Pipeline (Ovijeet FR-3.9, 3.10) */}
         {isStaff && activeTab === 'kanban' && (
           <AssessmentKanbanPipeline />
+        )}
+
+        {/* Module 3: Executive Reports & Exports (Atiya FR-3.13 to FR-3.18) */}
+        {activeTab === 'reports' && (
+          <ExecutiveReportExportCenter />
         )}
       </main>
 

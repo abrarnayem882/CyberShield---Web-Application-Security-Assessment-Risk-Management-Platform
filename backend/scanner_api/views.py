@@ -1790,5 +1790,346 @@ class SecurityPostureTrendsView(APIView):
         })
 
 
+# --- ATIYA KHANM LUCKY (232-35-422) --- FR-3.13 to FR-3.18 ---
+
+import csv
+import secrets
+from django.http import HttpResponse
+
+class ExecutiveReportExportView(APIView):
+    """
+    FR-3.13: Executive PDF Report Download — Generate and download a comprehensive,
+    print-ready executive security report summarizing findings, scores, and risk distributions.
+    """
+    def get(self, request):
+        assessment_id = request.query_params.get('assessment_id')
+        if not assessment_id:
+            assess = Assessment.objects.first()
+        else:
+            try:
+                assess = Assessment.objects.get(id=assessment_id)
+            except Assessment.DoesNotExist:
+                return Response({'error': 'Assessment not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if not assess:
+            return Response({'error': 'No assessment records available'}, status=status.HTTP_404_NOT_FOUND)
+
+        findings = assess.findings.all().order_by('-risk_score')
+        total_findings = findings.count()
+        critical_count = findings.filter(severity='Critical').count()
+        high_count = findings.filter(severity='High').count()
+        medium_count = findings.filter(severity='Medium').count()
+        low_count = findings.filter(severity='Low').count()
+        resolved_count = findings.filter(status='Resolved').count()
+
+        # Compute executive security rating
+        score = max(40, 100 - (critical_count * 20 + high_count * 10 + medium_count * 4))
+        grade = 'A' if score >= 90 else ('B' if score >= 80 else ('C' if score >= 70 else 'D'))
+
+        report_payload = {
+            'report_id': f"CSR-{datetime.date.today().strftime('%Y%m')}-{str(assess.id)[:6].upper()}",
+            'generated_at': dt.datetime.now(dt.timezone.utc).strftime('%B %d, %Y'),
+            'assessment_title': assess.title,
+            'target_organization': assess.target_organization,
+            'target_url': assess.target_url,
+            'compliance_framework': assess.compliance_framework,
+            'status': assess.status,
+            'lead_assessor': assess.assessor.name if assess.assessor else 'Security Assessor (DIU SecOps)',
+            'executive_summary': (
+                f"CyberShield performed a comprehensive web application security assessment against {assess.target_organization} "
+                f"({assess.target_url}) adhering to {assess.compliance_framework}. A total of {total_findings} security findings were "
+                f"identified, including {critical_count} Critical and {high_count} High severity vulnerabilities. Overall security "
+                f"posture was rated at {score}/100 (Grade {grade})."
+            ),
+            'metrics': {
+                'overall_score': score,
+                'letter_grade': grade,
+                'total_findings': total_findings,
+                'critical_count': critical_count,
+                'high_count': high_count,
+                'medium_count': medium_count,
+                'low_count': low_count,
+                'resolved_count': resolved_count,
+                'remediation_rate': round(resolved_count / total_findings * 100, 1) if total_findings > 0 else 0
+            },
+            'top_findings': [{
+                'id': str(f.id),
+                'title': f.title,
+                'severity': f.severity,
+                'risk_score': f.risk_score,
+                'endpoint': f.affected_endpoint,
+                'status': f.status,
+                'description': f.description[:180] + '...' if len(f.description) > 180 else f.description
+            } for f in findings[:6]],
+            'recommendations': [
+                "Implement parameterized queries and ORM sanitization across all database interaction points.",
+                "Enforce strict HTTP Strict Transport Security (HSTS) with a minimum max-age of 31536000 seconds.",
+                "Deploy a restrictive Content Security Policy (CSP) blocking unauthorized script injection sources.",
+                "Enforce Multi-Factor Authentication (MFA) across all administrative and customer account portals."
+            ]
+        }
+
+        return Response(report_payload)
+
+
+class TechnicalFindingsExportView(APIView):
+    """
+    FR-3.14: Technical Findings Report Export — Developers and assessors can export
+    detailed technical vulnerability reports containing remediation steps and verification records.
+    """
+    def get(self, request):
+        assessment_id = request.query_params.get('assessment_id')
+        findings_qs = Finding.objects.all().order_by('-risk_score')
+        if assessment_id:
+            findings_qs = findings_qs.filter(assessment_id=assessment_id)
+
+        technical_records = []
+        for f in findings_qs:
+            evidence = RemediationEvidence.objects.filter(finding=f).first()
+            verification = RetestVerification.objects.filter(finding=f).first()
+
+            technical_records.append({
+                'id': str(f.id),
+                'title': f.title,
+                'severity': f.severity,
+                'likelihood': f.likelihood,
+                'impact': f.impact,
+                'risk_score': f.risk_score,
+                'status': f.status,
+                'affected_endpoint': f.affected_endpoint,
+                'description': f.description,
+                'evidence_steps': f.evidence_steps,
+                'remediation_fix_summary': evidence.fix_summary if evidence else 'Pending developer submission',
+                'pull_request_url': evidence.pull_request_url if evidence else None,
+                'verification_verdict': verification.verdict if verification else 'Awaiting formal retest',
+                'verification_notes': verification.verification_notes if verification else None,
+                'logged_at': f.created_at.isoformat()
+            })
+
+        return Response({
+            'total_exported': len(technical_records),
+            'export_format': 'JSON Technical Remediation Dossier',
+            'records': technical_records
+        })
+
+
+class AuditLogExportView(APIView):
+    """
+    FR-3.15: Audit Log Export — Administrators can export searchable activity audit
+    trail logs for external compliance reviews and security governance audits (CSV / JSON).
+    """
+    def get(self, request):
+        export_format = (request.query_params.get('export') or request.query_params.get('type') or 'json').lower()
+        logs = ScanAuditLog.objects.all().order_by('-timestamp')
+
+        if export_format == 'csv':
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = f'attachment; filename="cybershield_audit_trail_{datetime.date.today().strftime("%Y%m%d")}.csv"'
+
+            writer = csv.writer(response)
+            writer.writerow(['ID', 'Timestamp (UTC)', 'User Name', 'Role', 'Action Code', 'Target Resource', 'IP Address', 'Details'])
+
+            for log in logs:
+                writer.writerow([
+                    str(log.id),
+                    log.timestamp.isoformat(),
+                    log.user_name,
+                    log.role,
+                    log.action,
+                    log.target_url,
+                    log.ip_address,
+                    log.details
+                ])
+
+            return response
+
+        # Default JSON format
+        return Response({
+            'total_logs': logs.count(),
+            'export_date': dt.datetime.now(dt.timezone.utc).isoformat(),
+            'logs': [{
+                'id': str(l.id),
+                'timestamp': l.timestamp.isoformat(),
+                'user_name': l.user_name,
+                'role': l.role,
+                'action': l.action,
+                'target_url': l.target_url,
+                'ip_address': l.ip_address,
+                'details': l.details
+            } for l in logs[:200]]
+        })
+
+
+class StakeholderNotificationsView(APIView):
+    """
+    FR-3.16: Stakeholder Notification Alerts — Customers receive notifications when assessment
+    milestones are completed, and reports become available for download.
+    """
+    def get(self, request):
+        notifs = InboundNotification.objects.filter(
+            models.Q(target_role__in=['customer', 'all', 'manager'])
+        ).order_by('-created_at')[:20]
+
+        result = [{
+            'id': str(n.id),
+            'title': n.title,
+            'message': n.message,
+            'notification_type': n.notification_type,
+            'is_read': n.is_read,
+            'created_at': n.created_at.isoformat(),
+            'assessment_title': n.related_assessment.title if n.related_assessment else None
+        } for n in notifs]
+
+        return Response({
+            'count': len(result),
+            'notifications': result
+        })
+
+    def post(self, request):
+        title = request.data.get('title')
+        message = request.data.get('message')
+        assessment_id = request.data.get('assessment_id')
+
+        if not title or not message:
+            return Response({'error': 'title and message required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        assess = None
+        if assessment_id:
+            assess = Assessment.objects.filter(id=assessment_id).first()
+
+        n = InboundNotification.objects.create(
+            title=title,
+            message=message,
+            notification_type='ASSESSMENT_MILESTONE',
+            target_role='customer',
+            related_assessment=assess
+        )
+
+        return Response({
+            'id': str(n.id),
+            'message': 'Stakeholder alert dispatched successfully.'
+        }, status=status.HTTP_201_CREATED)
+
+
+class MultiOrganizationDashboardFilterView(APIView):
+    """
+    FR-3.17: Multi-Organization Dashboard View — Security consultants can switch views
+    between different client organizations to review their respective security portfolios.
+    """
+    def get(self, request):
+        orgs = Organization.objects.all()
+
+        portfolios = []
+        for org in orgs:
+            assessments = Assessment.objects.filter(target_organization__icontains=org.name)
+            findings = Finding.objects.filter(assessment__in=assessments)
+            scans = ScanRecord.objects.filter(url__icontains=org.domain)
+
+            avg_score = round(sum(s.score for s in scans) / scans.count(), 1) if scans.count() > 0 else 76.0
+            crit_findings = findings.filter(severity='Critical').count()
+
+            portfolios.append({
+                'id': str(org.id),
+                'name': org.name,
+                'domain': org.domain,
+                'industry': org.industry,
+                'assessments_count': assessments.count(),
+                'active_assessments': assessments.filter(status__in=['In Progress', 'Scheduled', 'Under Review']).count(),
+                'total_findings': findings.count(),
+                'critical_findings': crit_findings,
+                'average_score': avg_score,
+                'compliance_rating': 'Audited & Monitored' if assessments.count() > 0 else 'Initial Scanning'
+            })
+
+        return Response({
+            'total_organizations': len(portfolios),
+            'organizations': portfolios
+        })
+
+
+class AssessmentSummaryShareView(APIView):
+    """
+    FR-3.18: Assessment Summary Sharing — Managers can generate secure, view-only summary
+    links or presentation-ready summaries to share with executive leadership.
+    """
+    def post(self, request):
+        assessment_id = request.data.get('assessment_id')
+        title = request.data.get('title', 'Executive Security Briefing')
+        expires_days = int(request.data.get('expires_days', 7))
+
+        if not assessment_id:
+            assess = Assessment.objects.first()
+        else:
+            try:
+                assess = Assessment.objects.get(id=assessment_id)
+            except Assessment.DoesNotExist:
+                return Response({'error': 'Assessment not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if not assess:
+            return Response({'error': 'No assessment available'}, status=status.HTTP_404_NOT_FOUND)
+
+        token = secrets.token_urlsafe(24)
+        expires_at = dt.datetime.now(dt.timezone.utc) + dt.timedelta(days=expires_days)
+
+        summary = SharedAssessmentSummary.objects.create(
+            assessment=assess,
+            share_token=token,
+            title=title,
+            expires_at=expires_at
+        )
+
+        share_url = f"http://localhost:5173/?view_token={token}&assessment_id={assess.id}"
+
+        ScanAuditLog.objects.create(
+            user_name=request.data.get('manager_name', 'Security Manager'),
+            role='manager',
+            action='EXECUTIVE_SUMMARY_SHARE_CREATED',
+            target_url=assess.target_url,
+            details=f"Generated view-only executive summary share token '{token[:8]}...' for {assess.title}."
+        )
+
+        return Response({
+            'share_token': token,
+            'share_url': share_url,
+            'assessment_title': assess.title,
+            'expires_at': expires_at.isoformat(),
+            'message': 'Executive summary share link generated successfully.'
+        }, status=status.HTTP_201_CREATED)
+
+    def get(self, request):
+        token = request.query_params.get('token')
+        if not token:
+            return Response({'error': 'token query param required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            summary = SharedAssessmentSummary.objects.get(share_token=token)
+        except SharedAssessmentSummary.DoesNotExist:
+            return Response({'error': 'Invalid or expired share token'}, status=status.HTTP_404_NOT_FOUND)
+
+        if summary.expires_at < dt.datetime.now(dt.timezone.utc):
+            return Response({'error': 'Share link has expired'}, status=status.HTTP_410_GONE)
+
+        summary.access_count += 1
+        summary.save()
+
+        assess = summary.assessment
+        findings = assess.findings.all()
+
+        return Response({
+            'title': summary.title,
+            'assessment_title': assess.title,
+            'organization': assess.target_organization,
+            'target_url': assess.target_url,
+            'compliance_framework': assess.compliance_framework,
+            'status': assess.status,
+            'total_findings': findings.count(),
+            'critical_count': findings.filter(severity='Critical').count(),
+            'high_count': findings.filter(severity='High').count(),
+            'access_count': summary.access_count,
+            'expires_at': summary.expires_at.isoformat(),
+        })
+
+
+
 
 

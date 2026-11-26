@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Shield, ShieldCheck, History, UserCheck, Info, ChevronDown,
   ClipboardList, Search, TrendingUp, KeyRound, FileText,
-  LayoutDashboard
+  LayoutDashboard, BarChart3, Kanban
 } from 'lucide-react';
 import { UserRole, UserProfile } from '../types';
 import { SYSTEM_USERS } from '../data/mockData';
@@ -45,9 +45,12 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const module3TabsStaff = [
     { id: 'executive', label: 'Executive Dashboard', icon: LayoutDashboard },
+    { id: 'analytics', label: 'Analytics & Charts',  icon: BarChart3 },
+    { id: 'kanban',    label: 'Inquiries Kanban',   icon: Kanban },
   ];
   const module3TabsCustomer = [
     { id: 'executive', label: 'Executive Summary', icon: LayoutDashboard },
+    { id: 'analytics', label: 'Risk Analytics',    icon: BarChart3 },
   ];
   const module3Tabs = isCustomer ? module3TabsCustomer : module3TabsStaff;
 

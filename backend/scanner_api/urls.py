@@ -31,6 +31,12 @@ from .views import (
     AssetSecurityComparisonView,
     ActivityAuditTrailView,
     InboundNotificationView,
+    # Module 3 — OVIJEET SAHA (FR-3.7 to FR-3.12)
+    VulnerabilityCategoryChartsView,
+    HeatmapFilteredFindingsView,
+    AssessmentKanbanPipelineView,
+    CustomerInquiryApprovalView,
+    SecurityPostureTrendsView,
 )
 
 urlpatterns = [
@@ -94,4 +100,16 @@ urlpatterns = [
     path('audit/trail/', ActivityAuditTrailView.as_view(), name='audit_trail_slash'),
     path('notifications/inbound', InboundNotificationView.as_view(), name='inbound_notifications'),
     path('notifications/inbound/', InboundNotificationView.as_view(), name='inbound_notifications_slash'),
+
+    # --- Module 3: OVIJEET SAHA (FR-3.7 to FR-3.12) ---
+    path('analytics/vulnerability-categories', VulnerabilityCategoryChartsView.as_view(), name='vulnerability_categories'),
+    path('analytics/vulnerability-categories/', VulnerabilityCategoryChartsView.as_view(), name='vulnerability_categories_slash'),
+    path('analytics/heatmap-findings', HeatmapFilteredFindingsView.as_view(), name='heatmap_findings'),
+    path('analytics/heatmap-findings/', HeatmapFilteredFindingsView.as_view(), name='heatmap_findings_slash'),
+    path('inquiries/kanban', AssessmentKanbanPipelineView.as_view(), name='inquiries_kanban'),
+    path('inquiries/kanban/', AssessmentKanbanPipelineView.as_view(), name='inquiries_kanban_slash'),
+    path('inquiries/approve', CustomerInquiryApprovalView.as_view(), name='inquiry_approve'),
+    path('inquiries/approve/', CustomerInquiryApprovalView.as_view(), name='inquiry_approve_slash'),
+    path('analytics/posture-trends', SecurityPostureTrendsView.as_view(), name='posture_trends'),
+    path('analytics/posture-trends/', SecurityPostureTrendsView.as_view(), name='posture_trends_slash'),
 ]

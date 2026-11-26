@@ -16,6 +16,9 @@ import AssessmentProgressMonitor from './components/AssessmentProgressMonitor';
 import CustomerAssessmentView from './components/CustomerAssessmentView';
 // Module 3 — MD. ABU NAYEM (FR-3.1 to FR-3.6)
 import ExecutiveDashboard from './components/ExecutiveDashboard';
+// Module 3 — OVIJEET SAHA (FR-3.7 to FR-3.12)
+import VulnerabilityAnalyticsCharts from './components/VulnerabilityAnalyticsCharts';
+import AssessmentKanbanPipeline from './components/AssessmentKanbanPipeline';
 import { Check } from 'lucide-react';
 
 import { UserProfile, AuditLog, BasicScanResult, AssessmentRequest } from './types';
@@ -103,7 +106,7 @@ export const App: React.FC = () => {
 
   // RBAC guard — customer cannot access staff-only tabs
   const handleSetActiveTab = (tab: string) => {
-    const staffOnlyTabs = ['assessment', 'findings', 'checklist'];
+    const staffOnlyTabs = ['assessment', 'findings', 'checklist', 'kanban'];
     if (isCustomer && staffOnlyTabs.includes(tab)) return;
     setActiveTab(tab);
   };
@@ -179,10 +182,20 @@ export const App: React.FC = () => {
         {activeTab === 'executive' && (
           <ExecutiveDashboard
             onSelectFindingCoordinate={(_l, _i) => {
-              setActiveTab('findings');
+              setActiveTab('analytics');
             }}
             onNavigateTab={handleSetActiveTab}
           />
+        )}
+
+        {/* Module 3: Analytics & Posture Trends (Ovijeet FR-3.7, 3.8, 3.11, 3.12) */}
+        {activeTab === 'analytics' && (
+          <VulnerabilityAnalyticsCharts />
+        )}
+
+        {/* Module 3: Inquiries Kanban Pipeline (Ovijeet FR-3.9, 3.10) */}
+        {isStaff && activeTab === 'kanban' && (
+          <AssessmentKanbanPipeline />
         )}
       </main>
 

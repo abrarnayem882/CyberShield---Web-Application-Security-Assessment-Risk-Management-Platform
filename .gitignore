@@ -42,7 +42,16 @@ db.sqlite3-journal
 *backup*.docx
 ~$*
 
-# Editor directories and files
+# Local temp & scratch
+fill_lab_assessment_report.py
+get_ids.py
+start_frontend.bat
+.postman/
+postman/
+*.pdf
+232-35-332 .docx
+temp.docx
+
 .vscode/*
 !.vscode/extensions.json
 .idea

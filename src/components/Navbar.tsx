@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import {
   Shield, ShieldCheck, History, UserCheck, Info, ChevronDown,
-  ClipboardList, Search, TrendingUp, KeyRound, FileText
+  ClipboardList, Search, TrendingUp, KeyRound, FileText,
+  LayoutDashboard
 } from 'lucide-react';
 import { UserRole, UserProfile } from '../types';
 import { SYSTEM_USERS } from '../data/mockData';
@@ -42,6 +43,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const module2Tabs = isCustomer ? module2TabsCustomer : module2TabsStaff;
 
+  const module3TabsStaff = [
+    { id: 'executive', label: 'Executive Dashboard', icon: LayoutDashboard },
+  ];
+  const module3TabsCustomer = [
+    { id: 'executive', label: 'Executive Summary', icon: LayoutDashboard },
+  ];
+  const module3Tabs = isCustomer ? module3TabsCustomer : module3TabsStaff;
+
   const getRoleBadge = (role: UserRole) => {
     const map: Record<string, string> = {
       manager: 'badge-critical', assessor: 'badge-high',
@@ -66,21 +75,28 @@ export const Navbar: React.FC<NavbarProps> = ({
     return map[role] || '#6b7280';
   };
 
-  const tabBtn = (isActive: boolean, isM2 = false): React.CSSProperties => ({
-    display: 'flex', alignItems: 'center', gap: '0.4rem',
-    padding: '0.42rem 0.8rem', borderRadius: '8px', border: 'none',
-    background: isActive
-      ? (isM2
-          ? 'linear-gradient(135deg, #7c3aed, #6d28d9)'
-          : 'linear-gradient(135deg, #06b6d4, #0284c7)')
-      : 'transparent',
-    color: isActive ? '#ffffff' : 'var(--text-muted)',
-    fontWeight: isActive ? 600 : 500, fontSize: '0.8rem',
-    cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' as const,
-    boxShadow: isActive
-      ? (isM2 ? '0 4px 12px rgba(124,58,237,0.3)' : '0 4px 12px rgba(6,182,212,0.3)')
-      : 'none',
-  });
+  const tabBtn = (isActive: boolean, moduleType: 'M1' | 'M2' | 'M3' = 'M1'): React.CSSProperties => {
+    let activeBg = 'linear-gradient(135deg, #06b6d4, #0284c7)';
+    let activeShadow = '0 4px 12px rgba(6,182,212,0.3)';
+
+    if (moduleType === 'M2') {
+      activeBg = 'linear-gradient(135deg, #7c3aed, #6d28d9)';
+      activeShadow = '0 4px 12px rgba(124,58,237,0.3)';
+    } else if (moduleType === 'M3') {
+      activeBg = 'linear-gradient(135deg, #10b981, #059669)';
+      activeShadow = '0 4px 12px rgba(16,185,129,0.3)';
+    }
+
+    return {
+      display: 'flex', alignItems: 'center', gap: '0.4rem',
+      padding: '0.42rem 0.8rem', borderRadius: '8px', border: 'none',
+      background: isActive ? activeBg : 'transparent',
+      color: isActive ? '#ffffff' : 'var(--text-muted)',
+      fontWeight: isActive ? 600 : 500, fontSize: '0.8rem',
+      cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' as const,
+      boxShadow: isActive ? activeShadow : 'none',
+    };
+  };
 
   return (
     <header className="no-print" style={{
@@ -114,7 +130,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 background: 'linear-gradient(135deg,#fff,#94a3b8)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
               }}>CyberShield</span>
-              <span className="badge badge-info" style={{ fontSize: '0.6rem' }}>Module 1 &amp; 2</span>
+              <span className="badge badge-info" style={{ fontSize: '0.6rem' }}>Modules 1, 2 &amp; 3</span>
             </div>
             <p style={{ margin: 0, fontSize: '0.68rem', color: 'var(--text-dim)', fontWeight: 500 }}>
               SE331 | Group 02 | Fall 2026
@@ -228,7 +244,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         }}>
           <span style={{ fontSize: '0.6rem', color: '#06b6d4', fontWeight: 700, padding: '0 0.45rem', letterSpacing: '0.05em' }}>M1</span>
           {module1Tabs.map(({ id, label, icon: Icon }) => (
-            <button key={id} onClick={() => setActiveTab(id)} style={tabBtn(activeTab === id, false)}>
+            <button key={id} onClick={() => setActiveTab(id)} style={tabBtn(activeTab === id, 'M1')}>
               <Icon size={14} /><span>{label}</span>
             </button>
           ))}
@@ -244,7 +260,23 @@ export const Navbar: React.FC<NavbarProps> = ({
         }}>
           <span style={{ fontSize: '0.6rem', color: '#8b5cf6', fontWeight: 700, padding: '0 0.45rem', letterSpacing: '0.05em' }}>M2</span>
           {module2Tabs.map(({ id, label, icon: Icon }) => (
-            <button key={id} onClick={() => setActiveTab(id)} style={tabBtn(activeTab === id, true)}>
+            <button key={id} onClick={() => setActiveTab(id)} style={tabBtn(activeTab === id, 'M2')}>
+              <Icon size={14} /><span>{label}</span>
+            </button>
+          ))}
+        </div>
+
+        <div style={{ width: '1px', height: '22px', background: 'var(--border-subtle)' }} />
+
+        {/* Module 3 Tabs */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '0.2rem',
+          background: 'rgba(15,23,42,0.6)', padding: '0.22rem',
+          borderRadius: '10px', border: '1px solid rgba(16,185,129,0.35)'
+        }}>
+          <span style={{ fontSize: '0.6rem', color: '#10b981', fontWeight: 700, padding: '0 0.45rem', letterSpacing: '0.05em' }}>M3</span>
+          {module3Tabs.map(({ id, label, icon: Icon }) => (
+            <button key={id} onClick={() => setActiveTab(id)} style={tabBtn(activeTab === id, 'M3')}>
               <Icon size={14} /><span>{label}</span>
             </button>
           ))}

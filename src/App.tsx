@@ -14,6 +14,8 @@ import ChecklistAuditConsole from './components/ChecklistAuditConsole';
 // Module 2 — ATIYA KHANM LUCKY (FR-2.13 to FR-2.18)
 import AssessmentProgressMonitor from './components/AssessmentProgressMonitor';
 import CustomerAssessmentView from './components/CustomerAssessmentView';
+// Module 3 — MD. ABU NAYEM (FR-3.1 to FR-3.6)
+import ExecutiveDashboard from './components/ExecutiveDashboard';
 import { Check } from 'lucide-react';
 
 import { UserProfile, AuditLog, BasicScanResult, AssessmentRequest } from './types';
@@ -171,6 +173,16 @@ export const App: React.FC = () => {
         )}
         {isStaff && activeTab === 'checklist' && (
           <ChecklistAuditConsole assessmentId={selectedAssessmentId} />
+        )}
+
+        {/* Module 3: Executive Dashboard (Nayem FR-3.1 to FR-3.6) */}
+        {activeTab === 'executive' && (
+          <ExecutiveDashboard
+            onSelectFindingCoordinate={(_l, _i) => {
+              setActiveTab('findings');
+            }}
+            onNavigateTab={handleSetActiveTab}
+          />
         )}
       </main>
 

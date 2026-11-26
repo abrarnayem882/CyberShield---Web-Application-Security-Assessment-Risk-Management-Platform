@@ -574,3 +574,79 @@ class AssessmentArchive(models.Model):
         return f"Archive: {self.assessment.title} - Archived at {self.archived_at.strftime('%Y-%m-%d')}"
 
 
+# =============================================================================
+# MODULE 3: Dashboard, Reporting, Audit & Customer Conversion
+# =============================================================================
+
+# --- MD. ABU NAYEM (232-35-332) --- FR-3.1 to FR-3.6 ---
+
+class InboundNotification(models.Model):
+    """
+    FR-3.6: Inbound Request Notification — Assessors and managers receive notifications
+    whenever a customer submits a new full assessment inquiry or system milestone alerts trigger.
+    """
+    NOTIFICATION_TYPES = [
+        ('INBOUND_INQUIRY', 'Inbound Customer Assessment Inquiry'),
+        ('ASSESSMENT_MILESTONE', 'Assessment Milestone Update'),
+        ('RETEST_REQUESTED', 'Remediation Retest Requested'),
+        ('CRITICAL_ALERT', 'Critical Vulnerability Alert'),
+        ('SYSTEM_NOTICE', 'System Governance Notice'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    recipient = models.ForeignKey(
+        UserProfile, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='notifications'
+    )
+    target_role = models.CharField(max_length=50, default='assessor')
+    notification_type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES, default='INBOUND_INQUIRY')
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    related_assessment = models.ForeignKey(
+        Assessment, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='notifications'
+    )
+    related_inquiry = models.ForeignKey(
+        AssessmentRequest, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='notifications'
+    )
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"[{self.notification_type}] {self.title} ({'Read' if self.is_read else 'Unread'})"
+
+
+# --- ATIYA KHANM LUCKY (232-35-422) --- FR-3.13 to FR-3.18 ---
+
+class SharedAssessmentSummary(models.Model):
+    """
+    FR-3.18: Assessment Summary Sharing — Managers can generate secure, view-only summary
+    tokens or presentation-ready links to share with executive leadership.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    assessment = models.ForeignKey(
+        Assessment, on_delete=models.CASCADE, related_name='shared_summaries'
+    )
+    share_token = models.CharField(max_length=64, unique=True)
+    created_by = models.ForeignKey(
+        UserProfile, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='created_summaries'
+    )
+    title = models.CharField(max_length=255, default='Executive Security Posture Briefing')
+    allow_pdf_export = models.BooleanField(default=True)
+    access_count = models.IntegerField(default=0)
+    expires_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Share Token {self.share_token} for [{self.assessment.title}]"
+
+
+

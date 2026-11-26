@@ -25,6 +25,12 @@ from .views import (
     RetestNoteView,
     FindingDiscussionView,
     AssessmentArchiveView,
+    # Module 3 — MD. ABU NAYEM (FR-3.1 to FR-3.6)
+    ExecutiveDashboardView,
+    RiskHeatmapMatrixView,
+    AssetSecurityComparisonView,
+    ActivityAuditTrailView,
+    InboundNotificationView,
 )
 
 urlpatterns = [
@@ -76,4 +82,16 @@ urlpatterns = [
     path('finding-discussion/', FindingDiscussionView.as_view(), name='finding_discussion_slash'),
     path('assessment-archive', AssessmentArchiveView.as_view(), name='assessment_archive'),
     path('assessment-archive/', AssessmentArchiveView.as_view(), name='assessment_archive_slash'),
+
+    # --- Module 3: MD. ABU NAYEM (FR-3.1 to FR-3.6) ---
+    path('dashboard/executive', ExecutiveDashboardView.as_view(), name='executive_dashboard'),
+    path('dashboard/executive/', ExecutiveDashboardView.as_view(), name='executive_dashboard_slash'),
+    path('dashboard/risk-matrix', RiskHeatmapMatrixView.as_view(), name='risk_matrix'),
+    path('dashboard/risk-matrix/', RiskHeatmapMatrixView.as_view(), name='risk_matrix_slash'),
+    path('dashboard/asset-comparison', AssetSecurityComparisonView.as_view(), name='asset_comparison'),
+    path('dashboard/asset-comparison/', AssetSecurityComparisonView.as_view(), name='asset_comparison_slash'),
+    path('audit/trail', ActivityAuditTrailView.as_view(), name='audit_trail'),
+    path('audit/trail/', ActivityAuditTrailView.as_view(), name='audit_trail_slash'),
+    path('notifications/inbound', InboundNotificationView.as_view(), name='inbound_notifications'),
+    path('notifications/inbound/', InboundNotificationView.as_view(), name='inbound_notifications_slash'),
 ]
